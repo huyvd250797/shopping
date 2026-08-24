@@ -1,40 +1,36 @@
-# QA — MyShop V0.3.0
+# QA — MyShop V0.4.0
 
-## Catalog Admin
-- [ ] Admin tạo được danh mục và public đọc được danh mục Active.
-- [ ] Danh mục Inactive biến mất ngoài public.
-- [ ] Không xóa được danh mục đang có sản phẩm.
-- [ ] Admin tạo DIRECT có giá và publish được.
-- [ ] AFFILIATE thiếu URL bị chặn.
-- [ ] Affiliate URL không phải http/https bị chặn.
-- [ ] HYBRID lưu được Direct + Affiliate CTA.
-- [ ] Slug/SKU trùng hiển thị lỗi thân thiện.
-- [ ] Draft không xuất hiện public.
-- [ ] Active xuất hiện public.
-- [ ] Xóa mềm loại sản phẩm khỏi public nhưng không hard-delete record.
-- [ ] Restore đưa sản phẩm về Draft.
+## Static QA đã chạy trong môi trường build
 
-## Images
-- [ ] Upload JPG/PNG/WEBP/GIF <= 5MB thành công.
-- [ ] File không phải ảnh bị từ chối.
-- [ ] File > 5MB bị từ chối.
-- [ ] Customer không có quyền ghi bucket `product-images`.
-- [ ] Ảnh đầu tiên tự thành thumbnail nếu sản phẩm chưa có thumbnail.
-- [ ] Admin đổi thumbnail được.
-- [ ] Xóa image record đồng thời xóa Storage object nếu có `storage_path`.
+- TypeScript compiler parser: **64 TS/TSX files, 0 syntax errors**.
+- Internal import resolver: **0 missing imports**.
+- Next page routes: **23 routes, 0 duplicate routes**.
+- Không phát hiện `any` explicit trong source.
+- Không phát hiện secret key thật trong source.
+- Không chứa cấu hình môi trường phát triển cục bộ trong gói V0.4.0.
+- Migration chain có đủ 001 → 002 → 003 → 004.
 
-## Public
-- [ ] Home đọc category + product từ Supabase.
-- [ ] Category route chỉ hiển thị Active product.
-- [ ] Basic Search tìm theo name/SKU/short description.
-- [ ] Product detail 404 với Draft/Archived/deleted product.
-- [ ] DIRECT CTA đi `/checkout/[slug]`.
-- [ ] AFFILIATE CTA mở URL ngoài.
-- [ ] HYBRID có 2 CTA khi Affiliate URL hợp lệ.
+## Build dependency limitation
 
-## Regression
-- [ ] Register/login/logout Customer V0.2.0 còn hoạt động.
-- [ ] Customer không vào `/admin`.
-- [ ] Admin login/guard còn hoạt động.
-- [ ] Account/profile update còn hoạt động.
-- [ ] `npm run typecheck`, `npm run lint`, `npm run build` không có blocker.
+`npm install` đã được thử nhưng npm registry bị timeout trong môi trường đóng gói, vì vậy chưa thể chạy `npm run typecheck`, `npm run lint`, `npm run build` với dependency thật ở đây.
+
+Vercel khi deploy phải chạy lại:
+
+```bash
+npm install
+npm run typecheck
+npm run lint
+npm run build
+```
+
+## Smoke test production cần thực hiện
+
+1. Chạy migration 004 trong Supabase SQL Editor.
+2. Login Admin và mở `/admin/banners`.
+3. Tạo banner, upload ảnh, lưu nội dung, kiểm tra Home.
+4. Bật/tắt Home section và thay đổi thứ tự/số sản phẩm.
+5. Search theo keyword/category/mode/price.
+6. Sort newest/price asc/price desc.
+7. Pagination + browser Back/Forward giữ filter.
+8. Mobile kiểm tra header, search input không auto zoom, category horizontal scroll và product grid 2 cột.
+9. Tắt banner hoặc đặt lịch hết hạn, Home không còn hiển thị.
