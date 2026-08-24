@@ -4,7 +4,7 @@ export default function AdminDashboardPage() {
       <div className="admin-page-head">
         <div>
           <h1>Dashboard</h1>
-          <p>Foundation skeleton • KPI thật sẽ nối dữ liệu ở các version kế tiếp.</p>
+          <p>Auth & Roles hoàn tất • KPI thật sẽ nối dữ liệu ở các version kế tiếp.</p>
         </div>
         <span className="route-chip">Admin authenticated</span>
       </div>
@@ -23,7 +23,7 @@ export default function AdminDashboardPage() {
           <tbody>
             <tr><td>Admin Auth + server guard</td><td>V0.1.0</td><td><span className="status-dot">Ready</span></td></tr>
             <tr><td>Schema nền Supabase</td><td>V0.1.0</td><td><span className="status-dot">Ready</span></td></tr>
-            <tr><td>Customer Auth + Roles</td><td>V0.2.0</td><td>Planned</td></tr>
+            <tr><td>Customer Auth + Roles</td><td>V0.2.0</td><td><span className="status-dot">Ready</span></td></tr>
             <tr><td>Catalog CRUD</td><td>V0.3.0</td><td>Planned</td></tr>
             <tr><td>Direct Checkout</td><td>V0.5.0</td><td>Planned</td></tr>
           </tbody>

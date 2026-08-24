@@ -1,13 +1,17 @@
 import Link from "next/link";
 import { siteConfig } from "@/config/site";
+import { getCurrentUser } from "@/lib/auth/user";
+import { logoutCustomer } from "@/features/auth/actions";
 
-export function ShopHeader() {
+export async function ShopHeader() {
+  const current = await getCurrentUser();
+
   return (
     <>
       <div className="top-strip">
         <div className="container-app top-strip-inner">
           <span>Marketplace hybrid • Affiliate + Đặt hàng trực tiếp</span>
-          <span>Foundation preview</span>
+          <span>{siteConfig.versionLabel}</span>
         </div>
       </div>
       <header className="shop-header">
@@ -24,7 +28,14 @@ export function ShopHeader() {
 
           <nav className="header-actions" aria-label="Điều hướng chính">
             <Link className="header-link desktop-only" href="/account/orders">Đơn hàng</Link>
-            <Link className="header-link" href="/login">Đăng nhập</Link>
+            {current ? (
+              <>
+                <Link className="header-link" href="/account">{current.profile?.full_name || "Tài khoản"}</Link>
+                <form action={logoutCustomer} className="header-logout-form"><button className="header-link header-button" type="submit">Đăng xuất</button></form>
+              </>
+            ) : (
+              <Link className="header-link" href="/login">Đăng nhập</Link>
+            )}
           </nav>
         </div>
       </header>

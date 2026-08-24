@@ -355,3 +355,36 @@ button { cursor: pointer; }
   .admin-main { padding: 14px; }
   .kpi-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
 }
+
+/* V0.2.0 — Customer Auth & Account */
+.customer-auth-wrap { padding: 38px 0 18px; display: grid; place-items: center; }
+.customer-auth-card { width: min(500px, 100%); }
+.auth-message.success { color: #0f6a3e; background: #edf9f2; border: 1px solid #bfe4cf; }
+.auth-links-row { margin-top: 18px; display: flex; justify-content: space-between; gap: 12px; color: var(--ink-500); font-size: 13px; }
+.auth-links-row a { color: var(--brand-700); font-weight: 800; }
+.field-optional { color: var(--ink-500); font-weight: 500; }
+.header-logout-form { margin: 0; }
+.header-button { border: 0; background: transparent; }
+.secondary-button { border: 1px solid var(--line); background: #fff; color: var(--ink-700); border-radius: 10px; padding: 10px 14px; font-weight: 800; }
+.secondary-button:hover { border-color: #cfd4dc; color: var(--ink-950); }
+.button-fit { width: auto; min-width: 140px; }
+.account-page { padding: 28px 0; }
+.account-head { display: flex; justify-content: space-between; gap: 20px; align-items: flex-start; }
+.account-head h1 { margin: 10px 0 6px; font-size: 32px; letter-spacing: -.03em; }
+.account-head p { margin: 0; max-width: 720px; color: var(--ink-500); line-height: 1.6; }
+.account-grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(280px, .6fr); gap: 16px; margin-top: 20px; }
+.account-card { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 20px; box-shadow: var(--shadow-sm); }
+.account-card h2 { margin: 0 0 8px; font-size: 18px; }
+.account-summary dl { margin: 14px 0 18px; }
+.account-summary dl div { padding: 10px 0; border-bottom: 1px solid var(--line); }
+.account-summary dt { color: var(--ink-500); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; }
+.account-summary dd { margin: 5px 0 0; font-size: 13px; font-weight: 700; overflow-wrap: anywhere; }
+.mono-text { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 11px !important; }
+.secondary-link-button { display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--line); border-radius: 10px; padding: 10px 13px; color: var(--brand-700); font-size: 13px; font-weight: 800; }
+
+@media (max-width: 760px) {
+  .account-head { display: grid; }
+  .account-grid { grid-template-columns: 1fr; }
+  .header-actions { gap: 2px; }
+  .header-link { padding-inline: 8px; }
+}

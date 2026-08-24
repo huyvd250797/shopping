@@ -25,7 +25,7 @@ export default async function AdminLoginPage({ searchParams }: { searchParams: P
           <span>{siteConfig.name} Admin</span>
         </Link>
         <h1>Đăng nhập quản trị</h1>
-        <p>V0.1.0 dùng Supabase Auth và kiểm tra role ở server trước khi cho phép vào Admin Console.</p>
+        <p>V0.2.0 tiếp tục dùng Supabase Auth và kiểm tra role ở server trước khi cho phép vào Admin Console.</p>
 
         {!configured && <div className="auth-message info">Supabase chưa cấu hình. Public UI vẫn chạy, nhưng Admin Auth cần hoàn tất bước .env + migration + seed.</div>}
         {message && <div className="auth-message error">{message}</div>}

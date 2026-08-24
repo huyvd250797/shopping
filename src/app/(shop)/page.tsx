@@ -6,7 +6,7 @@ export default function HomePage() {
     <div className="container-app">
       <section className="hero">
         <div>
-          <span className="hero-kicker">V0.1.0 Foundation</span>
+          <span className="hero-kicker">V0.2.0 Auth & Roles</span>
           <h1>Một nền bán hàng gọn, nhanh và dễ vận hành.</h1>
           <p>
             Giao diện marketplace-inspired với nền móng sẵn cho Affiliate, Direct Order và Hybrid.
@@ -62,7 +62,7 @@ export default function HomePage() {
       </section>
 
       <section className="section foundation-callout">
-        <strong>Giới hạn đúng roadmap:</strong> V0.1.0 chưa có CRUD sản phẩm, checkout hay quản lý đơn thật.
+        <strong>Giới hạn đúng roadmap:</strong> V0.2.0 chưa có CRUD sản phẩm, checkout hay quản lý đơn thật.
         Admin Auth, route guard, schema nền, responsive layout và cấu hình deploy đã được dựng trước để các version sau phát triển ổn định.
       </section>
     </div>

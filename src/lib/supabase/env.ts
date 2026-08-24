@@ -12,3 +12,7 @@ export function getSupabasePublicEnv() {
 export function isSupabaseConfigured() {
   return Boolean(getSupabasePublicEnv());
 }
+
+export function getSiteUrl() {
+  return (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, "");
+}
