@@ -1,49 +1,42 @@
-# MyShop V0.1.0 — Foundation
+# MyShop V0.2.0 — Auth & Roles
 
-Phiên bản đầu tiên theo blueprint **Web App Bán Hàng Affiliate + Đơn Hàng**.
+Phiên bản thứ hai theo blueprint **Web App Bán Hàng Affiliate + Đơn Hàng**. V0.2.0 kế thừa V0.1.0 Foundation và tập trung hoàn thiện xác thực/phân quyền trước khi bước vào Catalog CRUD.
 
-## 1. Scope đã build
+## 1. Version history
 
-- Next.js 16 + TypeScript + App Router.
-- Tailwind CSS 4 + design tokens riêng, marketplace-inspired nhưng không clone Shopee.
-- Public shell responsive: header/search, banner hero, category cards, product cards, footer.
-- Skeleton routes cho Home, Search, Category, Product, Checkout, Order Success, Customer Account.
-- Supabase SSR cookie client theo mô hình `@supabase/ssr`.
-- `src/proxy.ts` để refresh auth cookie theo convention Next.js 16.
-- Admin Login thật bằng Supabase Auth.
-- Admin server guard: ngoài role `admin` không vào `/admin` được.
-- Admin Console skeleton responsive.
-- Schema nền cho profiles/categories/products/orders/banners/settings/affiliate/audit.
-- RLS foundation + public read cho catalog active + admin policies.
-- Script seed Admin an toàn bằng server-only key.
-- `.env.example`, migration, seed data, CHANGELOG, VERSION, hướng dẫn deploy Vercel.
+- ✅ V0.1.0 — Foundation
+- ✅ **V0.2.0 — Auth & Roles (current)**
+- ➡️ V0.3.0 — Catalog & CMS Core
 
-**Chưa build đúng theo roadmap:** Customer Auth đầy đủ, CRUD sản phẩm thật, checkout tạo đơn, quản lý đơn, affiliate tracking thật.
+## 2. Scope V0.2.0 đã build
 
-## 2. Yêu cầu máy
+- Customer signup/login/logout.
+- Email confirmation callback.
+- Forgot password → email recovery → đặt mật khẩu mới.
+- Protected Account route.
+- Profile cơ bản: họ tên, số điện thoại, email read-only.
+- Header nhận biết session.
+- Admin login + server role guard tiếp tục được giữ nguyên.
+- RLS own-profile và own-orders.
+- RPC `update_my_profile` chỉ cho chỉnh allow-list field, không cho đổi role.
+- Guest vẫn xem public site bình thường; đăng nhập không trở thành bắt buộc để duyệt sản phẩm.
+
+**Chưa build đúng roadmap:** Catalog CRUD thật (V0.3), Home/Search hoàn thiện (V0.4), Checkout (V0.5), Order Admin (V0.6), Affiliate tracking (V0.7), account/order UI đầy đủ (V0.8).
+
+## 3. Yêu cầu
 
 - Node.js >= 20.9
 - npm
-- Một Supabase project
-- Git/GitHub nếu deploy qua Vercel
+- Supabase project
 
-## 3. Chạy local từng bước
-
-### Bước 1 — Cài package
+## 4. Cài local
 
 ```bash
 npm install
-```
-
-### Bước 2 — Tạo `.env.local`
-
-Tại **thư mục gốc dự án**, cùng cấp với `package.json`, copy:
-
-```bash
 cp .env.example .env.local
 ```
 
-Windows có thể tạo file `.env.local` thủ công rồi copy nội dung từ `.env.example`.
+Windows: tạo `.env.local` thủ công cạnh `package.json` rồi copy nội dung `.env.example`.
 
 Điền tối thiểu:
 
@@ -51,93 +44,103 @@ Windows có thể tạo file `.env.local` thủ công rồi copy nội dung từ
 NEXT_PUBLIC_SUPABASE_URL=...
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=...
 NEXT_PUBLIC_SHOP_NAME=MyShop
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
 SUPABASE_SECRET_KEY=...
 ADMIN_SEED_EMAIL=...
 ADMIN_SEED_PASSWORD=...
-NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
-> Nếu Supabase project của bạn còn dùng key kiểu cũ, có thể dùng `NEXT_PUBLIC_SUPABASE_ANON_KEY` và `SUPABASE_SERVICE_ROLE_KEY`. Server secret/service-role key **không được** có prefix `NEXT_PUBLIC_`.
+## 5. Database migration
 
-### Bước 3 — Tạo database schema
+Nếu project Supabase **mới hoàn toàn**:
 
-Cách đơn giản nhất cho V0.1.0:
+1. Chạy `supabase/migrations/202608240001_foundation.sql`
+2. Chạy `supabase/migrations/202608240002_auth_roles.sql`
+3. Chạy `supabase/seed.sql`
+4. Chạy `npm run seed:admin`
 
-1. Mở Supabase Dashboard.
-2. SQL Editor → New query.
-3. Copy toàn bộ file `supabase/migrations/202608240001_foundation.sql` → Run.
-4. Chạy tiếp `supabase/seed.sql`.
+Nếu Supabase của bạn đã chạy V0.1.0 trước đó, chỉ cần chạy migration mới:
 
-### Bước 4 — Seed tài khoản Admin
-
-Sau khi schema đã có bảng `profiles`:
-
-```bash
-npm run seed:admin
+```text
+supabase/migrations/202608240002_auth_roles.sql
 ```
 
-Script sẽ:
+## 6. Supabase Auth URL bắt buộc
 
-- tạo Auth user nếu chưa có;
-- xác nhận email cho bootstrap account;
-- upsert `public.profiles`;
-- gán `role = admin`.
+Trong Supabase Dashboard → Authentication → URL Configuration:
 
-### Bước 5 — Chạy app
+- Site URL local: `http://localhost:3000`
+- Redirect URL local nên cho phép: `http://localhost:3000/auth/callback`
+- Khi deploy Vercel, thêm domain Preview/Production tương ứng.
+
+Nếu URL này sai, signup vẫn có thể tạo user nhưng email confirmation/password recovery sẽ quay về sai domain.
+
+## 7. Routes V0.2.0
+
+- `/login` — Customer Login
+- `/register` — Customer Signup
+- `/forgot-password` — Request reset email
+- `/auth/callback` — Supabase code exchange
+- `/auth/update-password` — Set new password
+- `/account` — Protected profile
+- `/account/orders` — Protected placeholder + RLS-ready
+- `/admin/login` — Admin login
+- `/admin` — Admin protected
+
+## 8. Test matrix nhanh
+
+### Customer Auth
+
+1. Mở `/register`, tạo account.
+2. Nếu Supabase bật Confirm Email: mở email → click link → về `/account`.
+3. Logout → `/login` → login lại.
+4. Vào `/account` sửa họ tên/SĐT → refresh vẫn còn dữ liệu.
+5. `/forgot-password` → email → đặt password mới.
+
+### Authorization
+
+1. Logout rồi mở `/account` → phải về `/login`.
+2. Customer thường mở `/admin` → phải bị từ chối/đưa về Admin Login.
+3. Customer không thể đổi `profiles.role` qua RPC profile.
+4. Customer chỉ được đọc order có `user_id = auth.uid()` theo RLS.
+
+## 9. Guest checkout policy
+
+`supabase/seed.sql` vẫn giữ:
+
+```text
+require_login_for_checkout = false
+```
+
+Nghĩa là định hướng sản phẩm vẫn là **khách không cần đăng nhập vẫn có thể đặt hàng** khi Direct Checkout được build ở V0.5.0. Account là tính năng tăng tiện ích, không phải rào cản mua hàng.
+
+## 10. Chạy và kiểm tra
 
 ```bash
 npm run dev
-```
-
-Mở:
-
-- Public: `http://localhost:3000`
-- Admin Login: `http://localhost:3000/admin/login`
-
-## 4. Kiểm tra trước khi deploy
-
-```bash
 npm run typecheck
 npm run lint
 npm run build
 ```
 
-## 5. Deploy Vercel
+## 11. Deploy Vercel
 
-1. Push source lên GitHub.
-2. Vercel → Add New Project → Import repository.
-3. Framework Preset: **Next.js**.
-4. Build Command: để mặc định `next build` / `npm run build`.
-5. **Output Directory: để trống / mặc định. Không nhập `out`.**
-6. Thêm các environment variables giống `.env.local` cho Preview/Production.
-7. Deploy.
-8. Sau deploy, đổi `NEXT_PUBLIC_SITE_URL` thành domain thật.
+- Framework: Next.js
+- Build command: mặc định / `npm run build`
+- Output Directory: **để trống**, không nhập `out`
+- Thêm toàn bộ env cần thiết.
+- `NEXT_PUBLIC_SITE_URL` phải là domain thật.
+- Thêm domain `/auth/callback` vào Supabase Redirect URLs.
 
-> Project này không dùng `output: 'export'`, không dùng custom `distDir`, vì vậy Vercel phải tự nhận `.next`. Không cấu hình Output Directory thành `out`.
+## 12. Security notes
 
-## 6. Security notes
+- Password do Supabase Auth quản lý; app không lưu plaintext password.
+- `role` không được phép nằm trong form profile update.
+- Customer profile update dùng RPC allow-list.
+- Admin guard chạy server-side.
+- RLS là lớp bảo vệ database, không phụ thuộc việc menu có bị ẩn hay không.
+- `SUPABASE_SECRET_KEY`/service-role tuyệt đối không có prefix `NEXT_PUBLIC_`.
 
-- Password nằm trong Supabase Auth, không lưu trong `profiles`.
-- Admin quyền được kiểm tra ở server, không chỉ ẩn menu.
-- RLS được bật ngay từ nền tảng.
-- `SUPABASE_SECRET_KEY` / `SUPABASE_SERVICE_ROLE_KEY` chỉ phục vụ bootstrap server-side; tuyệt đối không commit `.env.local`.
-- Sau khi seed Admin xong, có thể xóa `ADMIN_SEED_PASSWORD` khỏi Vercel nếu không dùng script seed trên môi trường đó.
+## 13. Phiên bản tiếp theo
 
-## 7. Guest checkout
-
-Theo quyết định hiện tại, guest checkout được thiết kế **cho phép mặc định** (`require_login_for_checkout=false`). V0.1.0 mới seed setting; luồng đặt hàng thật sẽ build ở V0.5.0.
-
-## 8. Roadmap tiếp theo
-
-- **Built:** V0.1.0 — Foundation
-- **Next:** V0.2.0 — Auth & Roles
-- V0.3.0 — Catalog & CMS Core
-- V0.4.0 — Home & Search UX
-- V0.5.0 — Direct Checkout
-- V0.6.0 — Order Admin
-- V0.7.0 — Affiliate & Hybrid
-- V0.8.0 — Customer Account
-- V0.9.0 — Hardening
-- V1.0.0 — Production Ready
-
-Xem `VERSION.md` và `CHANGELOG.md` để tránh nhầm version khi phát triển tiếp.
+**V0.3.0 — Catalog & CMS Core**: categories/products/images, Admin CRUD, publish/archive, Purchase Mode + Affiliate URL + button label, public catalog đọc Supabase thật.

@@ -1,20 +1,36 @@
-# Deploy Checklist — V0.1.0
+# Deploy — MyShop V0.2.0
 
-1. `npm install`
-2. Copy `.env.example` → `.env.local`
-3. Tạo Supabase project
-4. Run migration `supabase/migrations/202608240001_foundation.sql`
-5. Run `supabase/seed.sql`
-6. `npm run seed:admin`
-7. `npm run dev` và test `/` + `/admin/login`
-8. `npm run typecheck`
-9. `npm run lint`
-10. `npm run build`
-11. Push GitHub
-12. Import Vercel
-13. Add env vars
-14. Để **Output Directory trống**
-15. Deploy preview
-16. Test Admin Auth bằng tài khoản seed
-17. Test mobile width 390px và desktop
-18. Chỉ sau khi pass mới bắt đầu V0.2.0
+## Vercel
+
+1. Push source lên GitHub.
+2. Import repository vào Vercel.
+3. Framework Preset: Next.js.
+4. Output Directory: để trống / mặc định (`.next`).
+5. Thêm env từ `.env.example`.
+6. Set `NEXT_PUBLIC_SITE_URL=https://your-domain`.
+7. Deploy.
+
+## Supabase
+
+Nếu nâng từ V0.1.0, chạy:
+
+```text
+supabase/migrations/202608240002_auth_roles.sql
+```
+
+Sau đó Authentication → URL Configuration:
+
+- Site URL = domain production.
+- Redirect URLs thêm `https://your-domain/auth/callback`.
+- Nếu dùng Vercel Preview để test email callback, thêm preview domain phù hợp.
+
+## Smoke test sau deploy
+
+- Public home mở không cần login.
+- Register customer.
+- Email confirmation quay lại đúng domain.
+- Login/logout.
+- Update profile.
+- Forgot password + update password.
+- Customer thường không vào được `/admin`.
+- Admin seed account vào được `/admin`.
