@@ -1,4 +1,4 @@
--- MyShop V0.1.0 non-sensitive seed data.
+-- MyShop V0.3.0 non-sensitive seed data.
 -- Run after the foundation migration. Admin account itself is seeded by scripts/seed-admin.mjs.
 
 insert into public.site_settings (key, value, is_public)
@@ -13,5 +13,6 @@ insert into public.categories (name, slug, sort_order, is_active)
 values
   ('Gia dụng', 'gia-dung', 10, true),
   ('Mẹ & bé', 'me-va-be', 20, true),
-  ('Công nghệ', 'cong-nghe', 30, true)
+  ('Công nghệ', 'cong-nghe', 30, true),
+  ('Phụ kiện', 'phu-kien', 40, true)
 on conflict (slug) do nothing;

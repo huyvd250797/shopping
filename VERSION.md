@@ -1,23 +1,19 @@
-# Version State
+# MyShop — Version State
 
-## Built
+## Đã build
 
-- **V0.1.0 — Foundation**
-- **V0.2.0 — Auth & Roles** ← current
+- ✅ V0.1.0 — Foundation
+- ✅ V0.2.0 — Auth & Roles
+- ✅ **V0.3.0 — Catalog & CMS Core**
 
-V0.2.0 hoàn thiện Customer signup/login/logout/password recovery, profile cơ bản, session flow, Admin role guard và RLS own-data policies.
-
-## Next version
+## Version hiện tại
 
 **V0.3.0 — Catalog & CMS Core**
 
-Phạm vi dự kiến:
-- Categories + Products + Product Images.
-- Purchase Mode: AFFILIATE / DIRECT / HYBRID.
-- Affiliate URL + custom button label.
-- Admin CRUD, publish/archive/soft delete.
-- Public product grid/detail đọc dữ liệu Supabase thật.
+Catalog đã chuyển từ preview sang dữ liệu Supabase thật. Admin có CRUD danh mục/sản phẩm, publish/draft/archive, soft-delete/restore, gallery ảnh trên Supabase Storage, Purchase Mode và custom CTA. Public Home/category/search cơ bản/product detail đọc dữ liệu thật.
 
-## Version rule
+## Version tiếp theo
 
-Không đưa Home/Search polish của V0.4.0 hoặc Checkout của V0.5.0 vào V0.3.0 nếu Catalog Core chưa ổn định.
+➡️ **V0.4.0 — Home & Search UX**
+
+Banner CMS, home sections, search/filter/sort hoàn chỉnh, mobile header và polish product card.

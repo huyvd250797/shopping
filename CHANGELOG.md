@@ -1,47 +1,44 @@
-# Changelog
+# Changelog — MyShop
 
-## [0.2.0] - 2026-08-24
+## V0.3.0 — Catalog & CMS Core — 2026-08-24
 
 ### Added
-- Customer signup bằng Supabase Auth.
-- Customer login/logout với cookie session SSR.
-- Email confirmation callback `/auth/callback`.
-- Forgot-password + recovery callback + update-password flow.
-- Protected `/account` và `/account/orders` route.
-- Customer profile UI: full name + phone; email read-only.
-- Safe `update_my_profile` RPC không cho client sửa `role`/email.
-- Header thay đổi theo session: login hoặc account/logout.
-- RLS customer read own `orders`, `order_items`, `order_status_history`.
-- Migration `202608240002_auth_roles.sql`.
+- Admin CRUD danh mục: tạo, sửa, sắp xếp, bật/tắt, xóa khi chưa được sử dụng.
+- Admin CRUD sản phẩm với SKU, slug, giá, giá gạch, mô tả, category, badge, tags, Featured, stock cơ bản.
+- Purchase Mode `DIRECT`, `AFFILIATE`, `HYBRID`.
+- Affiliate URL, button label và secondary button label theo từng sản phẩm.
+- Product status `draft / active / archived` + soft-delete/restore.
+- Supabase Storage public bucket `product-images`; chỉ Admin được upload/update/delete qua RLS.
+- Upload trực tiếp browser → Supabase Storage, tối đa 6 ảnh/lần, tối đa 5MB/ảnh, kiểm tra JPEG/PNG/WEBP/GIF.
+- Gallery ảnh, đặt ảnh đại diện, xóa ảnh và dọn file Storage.
+- Public catalog thật: Home, Category, Basic Search và Product Detail.
+- CTA public thay đổi theo Purchase Mode.
+- Admin catalog KPI và audit events cho thay đổi catalog.
+- Migration `202608240003_catalog_cms.sql`.
 
 ### Changed
-- Version badge → V0.2.0 • Auth & Roles.
-- Auth metadata bootstrap nhận `full_name` + `phone`.
-- Admin login copy cập nhật theo version hiện tại.
-- `/account/orders` được bảo vệ session dù UI orders đầy đủ vẫn thuộc V0.8.0.
+- Version app lên `0.3.0`.
+- Home không còn dùng `foundation-preview` cho catalog.
+- Hướng dẫn deploy dùng domain production `https://bobebunne.vercel.app` làm URL chính.
 
 ### Security
-- Customer profile edit đi qua SECURITY DEFINER RPC với field allow-list.
-- Không có generic customer UPDATE trên `profiles`, tránh role escalation.
-- Customer order policies scope theo `auth.uid()`; không đọc order user khác.
-- Auth callback `next` chỉ cho internal path, tránh open redirect.
+- Catalog write tiếp tục yêu cầu Admin role bằng server guard + Supabase RLS.
+- Storage write policy gọi `public.is_admin()`; public chỉ dùng URL bucket để đọc ảnh.
+- Upload giới hạn MIME và kích thước; path file sinh ngẫu nhiên theo product UUID.
+- Soft-delete sản phẩm giữ dữ liệu phục vụ order history tương lai.
 
-### Known Issues
-- CRUD catalog vẫn là placeholder/previews cho đến V0.3.0.
-- Direct Checkout chưa tạo đơn thật cho đến V0.5.0.
-- Account address book và My Orders UI hoàn chỉnh thuộc V0.8.0.
-- Cần cấu hình Supabase Auth Site URL / Redirect URLs đúng domain local/preview/production để email confirmation và password recovery hoạt động.
+### Known Scope Limits
+- Banner/Home section CMS nâng cao: V0.4.0.
+- Filter/sort catalog nâng cao: V0.4.0.
+- Direct checkout tạo order thật: V0.5.0.
+- Order Admin: V0.6.0.
+- Affiliate click tracking: V0.7.0.
 
-## [0.1.0] - 2026-08-24
+## V0.2.0 — Auth & Roles — 2026-08-24
+- Customer signup/login/logout, email confirmation, password recovery.
+- Protected Account + profile RPC allow-list.
+- Customer own-order RLS foundation.
+- Admin role guard preserved.
 
-### Added
-- Next.js/TypeScript/Tailwind project foundation.
-- Marketplace-inspired responsive public shell.
-- Public route skeletons theo blueprint.
-- Supabase SSR client/server/proxy foundation.
-- Admin Supabase login + server-side role guard.
-- Responsive Admin Console skeleton.
-- Core relational database schema.
-- RLS foundation and admin bootstrap helper.
-- Non-sensitive site settings seed.
-- README local/deploy/security instructions.
+## V0.1.0 — Foundation — 2026-08-24
+- Next.js/TypeScript/Supabase foundation, schema, Admin bootstrap, responsive shell.

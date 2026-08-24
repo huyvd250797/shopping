@@ -5,7 +5,7 @@ import { getSupabasePublicEnv } from "./env";
 export async function createClient() {
   const env = getSupabasePublicEnv();
   if (!env) {
-    throw new Error("Supabase chưa được cấu hình. Hãy kiểm tra .env.local.");
+    throw new Error("Supabase chưa được cấu hình. Hãy kiểm tra Environment Variables trên Vercel.");
   }
 
   const cookieStore = await cookies();
