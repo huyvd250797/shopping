@@ -1,34 +1,40 @@
-# QA — V0.2.0 Auth & Roles
+# QA — MyShop V0.3.0
 
-## Automated/static checks performed in artifact environment
+## Catalog Admin
+- [ ] Admin tạo được danh mục và public đọc được danh mục Active.
+- [ ] Danh mục Inactive biến mất ngoài public.
+- [ ] Không xóa được danh mục đang có sản phẩm.
+- [ ] Admin tạo DIRECT có giá và publish được.
+- [ ] AFFILIATE thiếu URL bị chặn.
+- [ ] Affiliate URL không phải http/https bị chặn.
+- [ ] HYBRID lưu được Direct + Affiliate CTA.
+- [ ] Slug/SKU trùng hiển thị lỗi thân thiện.
+- [ ] Draft không xuất hiện public.
+- [ ] Active xuất hiện public.
+- [ ] Xóa mềm loại sản phẩm khỏi public nhưng không hard-delete record.
+- [ ] Restore đưa sản phẩm về Draft.
 
-- TS/TSX syntax transpile check: PASS.
-- Internal `@/` import resolution check: PASS.
-- Public/Admin/Auth route collision review: PASS.
-- Version package/config/docs consistency: PASS.
-- Secret scan: no real `.env.local` or credential values included.
-- Migration order present: `001_foundation` → `002_auth_roles` → seed.
+## Images
+- [ ] Upload JPG/PNG/WEBP/GIF <= 5MB thành công.
+- [ ] File không phải ảnh bị từ chối.
+- [ ] File > 5MB bị từ chối.
+- [ ] Customer không có quyền ghi bucket `product-images`.
+- [ ] Ảnh đầu tiên tự thành thumbnail nếu sản phẩm chưa có thumbnail.
+- [ ] Admin đổi thumbnail được.
+- [ ] Xóa image record đồng thời xóa Storage object nếu có `storage_path`.
 
-## Build limitation of artifact environment
+## Public
+- [ ] Home đọc category + product từ Supabase.
+- [ ] Category route chỉ hiển thị Active product.
+- [ ] Basic Search tìm theo name/SKU/short description.
+- [ ] Product detail 404 với Draft/Archived/deleted product.
+- [ ] DIRECT CTA đi `/checkout/[slug]`.
+- [ ] AFFILIATE CTA mở URL ngoài.
+- [ ] HYBRID có 2 CTA khi Affiliate URL hợp lệ.
 
-`npm install` was attempted but registry access timed out, so `node_modules` could not be installed here. Therefore `npm run typecheck`, `npm run lint`, and `npm run build` cannot be considered a real dependency-backed PASS in this environment.
-
-Run after downloading:
-
-```bash
-npm install
-npm run typecheck
-npm run lint
-npm run build
-```
-
-## Manual smoke tests after Supabase setup
-
-1. Register customer.
-2. Confirm email callback.
-3. Login/logout.
-4. Update profile.
-5. Forgot-password flow.
-6. Customer denied `/admin`.
-7. Seed Admin accepted `/admin`.
-8. Guest can still open Home/Search/Product routes without login.
+## Regression
+- [ ] Register/login/logout Customer V0.2.0 còn hoạt động.
+- [ ] Customer không vào `/admin`.
+- [ ] Admin login/guard còn hoạt động.
+- [ ] Account/profile update còn hoạt động.
+- [ ] `npm run typecheck`, `npm run lint`, `npm run build` không có blocker.
