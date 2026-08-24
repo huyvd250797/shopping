@@ -1,20 +1,9 @@
-# MyShop V0.3.0 — Build Notes
+# Build Notes — V0.4.0
 
-## QA đã thực hiện trong môi trường đóng gói
-
-- Kiểm tra cú pháp toàn bộ file `.ts` / `.tsx` bằng TypeScript parser.
-- Kiểm tra alias import nội bộ `@/` không trỏ tới file thiếu.
-- Kiểm tra route page không bị trùng.
-- Kiểm tra thứ tự migration V0.1 → V0.2 → V0.3.
-- Kiểm tra toàn bộ cấu hình và tài liệu production đều dùng domain thật.
-- Kiểm tra ZIP sau khi đóng gói bằng `unzip -t`.
-
-## Giới hạn môi trường
-
-`npm install` bị timeout khi truy cập npm registry trong môi trường đóng gói, vì vậy chưa thể chạy `npm run typecheck`, `npm run lint` và `npm run build` bằng dependency thực tế tại đây.
-
-Sau khi deploy/import source, nên để Vercel chạy build và kiểm tra log. Nếu build báo lỗi dependency hoặc TypeScript, xử lý theo log trước khi promote production.
-
-## Production
-
-Domain chính của dự án: `https://bobebunne.vercel.app`
+- Source nâng trực tiếp từ MyShop V0.3.0 user cung cấp.
+- Không thay đổi business boundary của Auth, Catalog, Purchase Mode.
+- Migration mới: `202608240004_home_search_ux.sql`.
+- Banner media upload trực tiếp browser → Supabase Storage `site-media` để tránh Vercel Function body limit.
+- Banner `datetime-local` được server hiểu theo múi giờ Việt Nam `+07:00`.
+- Public filter state được lưu bằng GET query URL, không cần client state library.
+- V0.4.0 không insert `orders`/`order_items`; Direct Checkout giữ cho V0.5.0.

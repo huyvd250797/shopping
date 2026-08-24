@@ -1,44 +1,44 @@
-# Changelog — MyShop
+# Changelog
 
-## V0.3.0 — Catalog & CMS Core — 2026-08-24
+## V0.4.0 — Home & Search UX — 2026-08-24
 
 ### Added
-- Admin CRUD danh mục: tạo, sửa, sắp xếp, bật/tắt, xóa khi chưa được sử dụng.
-- Admin CRUD sản phẩm với SKU, slug, giá, giá gạch, mô tả, category, badge, tags, Featured, stock cơ bản.
-- Purchase Mode `DIRECT`, `AFFILIATE`, `HYBRID`.
-- Affiliate URL, button label và secondary button label theo từng sản phẩm.
-- Product status `draft / active / archived` + soft-delete/restore.
-- Supabase Storage public bucket `product-images`; chỉ Admin được upload/update/delete qua RLS.
-- Upload trực tiếp browser → Supabase Storage, tối đa 6 ảnh/lần, tối đa 5MB/ảnh, kiểm tra JPEG/PNG/WEBP/GIF.
-- Gallery ảnh, đặt ảnh đại diện, xóa ảnh và dọn file Storage.
-- Public catalog thật: Home, Category, Basic Search và Product Detail.
-- CTA public thay đổi theo Purchase Mode.
-- Admin catalog KPI và audit events cho thay đổi catalog.
-- Migration `202608240003_catalog_cms.sql`.
+- Banner CMS thật tại `/admin/banners`.
+- Upload/replace ảnh banner trực tiếp lên Supabase Storage bucket `site-media`.
+- Lịch hiển thị banner theo `starts_at` / `ends_at`.
+- `home_sections` database: Featured, Newest, Best Price, Recommended.
+- Admin bật/tắt, đổi title/subtitle/type/item limit/sort order của Home sections.
+- Home đọc banner, category và section thật từ Supabase.
+- Search filter: keyword, category, price range, Purchase Mode.
+- Sort: relevant, newest, price ascending, price descending.
+- Pagination 24 sản phẩm/trang, trạng thái filter nằm trong URL.
+- Mobile category navigation dưới header.
+- Skeleton loading, empty state, route error state.
 
 ### Changed
-- Version app lên `0.3.0`.
-- Home không còn dùng `foundation-preview` cho catalog.
-- Hướng dẫn deploy dùng domain production `https://bobebunne.vercel.app` làm URL chính.
+- Product card được polish theo hướng marketplace, có short description/stock/meta trên desktop.
+- Category page có sort + pagination.
+- Admin Dashboard cập nhật KPI Home CMS.
+- Package/version nâng lên 0.4.0.
 
-### Security
-- Catalog write tiếp tục yêu cầu Admin role bằng server guard + Supabase RLS.
-- Storage write policy gọi `public.is_admin()`; public chỉ dùng URL bucket để đọc ảnh.
-- Upload giới hạn MIME và kích thước; path file sinh ngẫu nhiên theo product UUID.
-- Soft-delete sản phẩm giữ dữ liệu phục vụ order history tương lai.
+### Security / Data
+- `site-media` Storage write được bảo vệ bằng `public.is_admin()`.
+- Public chỉ đọc `home_sections` active; Admin mới có quyền ghi.
+- Banner schedule được lọc ở server khi render Home.
 
-### Known Scope Limits
-- Banner/Home section CMS nâng cao: V0.4.0.
-- Filter/sort catalog nâng cao: V0.4.0.
-- Direct checkout tạo order thật: V0.5.0.
-- Order Admin: V0.6.0.
-- Affiliate click tracking: V0.7.0.
+### Known scope boundary
+- V0.4.0 chưa tạo order Direct. Direct Checkout end-to-end nằm ở V0.5.0.
+- Affiliate click tracking vẫn nằm ở V0.7.0.
+
+## V0.3.0 — Catalog & CMS Core — 2026-08-24
+- Admin CRUD danh mục/sản phẩm, Purchase Mode, soft-delete/restore.
+- Supabase Storage `product-images`, gallery/thumbnail.
+- Public Home/Category/Search cơ bản/Product Detail đọc Catalog thật.
 
 ## V0.2.0 — Auth & Roles — 2026-08-24
 - Customer signup/login/logout, email confirmation, password recovery.
 - Protected Account + profile RPC allow-list.
-- Customer own-order RLS foundation.
-- Admin role guard preserved.
+- Customer own-order RLS foundation, Admin guard.
 
 ## V0.1.0 — Foundation — 2026-08-24
 - Next.js/TypeScript/Supabase foundation, schema, Admin bootstrap, responsive shell.
