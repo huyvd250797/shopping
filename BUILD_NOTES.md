@@ -1,11 +1,13 @@
-# Build Notes — V0.5.0
+# Build Notes — V0.6.1
 
-V0.5.0 nâng trực tiếp từ V0.4.0 và giữ nguyên Auth/Roles, Catalog/CMS, Home/Search.
+V0.6.1 là patch của V0.6.0, giữ nguyên Direct Checkout, Auth/Roles, Catalog/CMS, Home/Search và Order Admin. Không có migration mới.
 
-Điểm kiến trúc chính: tạo order bằng PostgreSQL `SECURITY DEFINER` RPC để hỗ trợ Guest mà không mở generic RLS INSERT cho anon. Function là transaction boundary nên order header/item/status history cùng commit hoặc cùng rollback.
+Điểm kiến trúc chính: Order Admin mutation được đưa xuống PostgreSQL RPC atomic. `admin_transition_order` khóa row order, kiểm tra allowed transition, update status, insert status history và insert audit trong cùng transaction. `admin_update_order_internal_note` cập nhật internal note và audit trong cùng transaction.
 
-`checkout_request_id` làm idempotency key. `access_token` dùng để Guest xem receipt an toàn mà không dựa vào order code dễ chia sẻ.
+Generic Admin write policy trên `orders`, `order_items`, `order_status_history` được thay bằng Admin SELECT policy để UI không thể bỏ qua workflow/history/audit bằng direct Data API update.
 
 Production URL dùng xuyên suốt: `https://bobebunne.vercel.app`.
 
-Build limitation: `npm install` timed out against the package registry in the packaging environment, so full dependency typecheck/lint/build was not claimed. TypeScript global parser successfully parsed all 73 TS/TSX source files with 0 syntax errors.
+Static QA đã parse 75 TS/TSX files với 0 syntax errors, 0 internal import missing và 0 route collision. Package registry không phản hồi trong giới hạn của môi trường đóng gói nên full dependency typecheck/lint/build không được tuyên bố PASS.
+
+V0.6.1 sửa production type-check: narrow `order.status` / `current.status` bằng `isOrderStatus()` trước khi index `ORDER_STATUS_TRANSITIONS`; `nextStatuses` được typed `OrderStatus[]`.

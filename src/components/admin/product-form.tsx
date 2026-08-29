@@ -11,7 +11,7 @@ type Props = {
 };
 
 const modes: Array<{ value: PurchaseMode; label: string; help: string }> = [
-  { value: "DIRECT", label: "DIRECT", help: "Đặt hàng nội bộ. Checkout hoàn chỉnh ở V0.5.0." },
+  { value: "DIRECT", label: "DIRECT", help: "Đặt hàng nội bộ qua Direct Checkout." },
   { value: "AFFILIATE", label: "AFFILIATE", help: "Nút mua mở liên kết đối tác." },
   { value: "HYBRID", label: "HYBRID", help: "Cho phép cả đặt trực tiếp và link affiliate." },
 ];

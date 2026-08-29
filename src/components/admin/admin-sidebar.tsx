@@ -8,6 +8,7 @@ const items = [
   ["/admin/orders", "≣", "Đơn hàng"],
   ["/admin/banners", "▭", "Banner"],
   ["/admin/settings", "⚙", "Cấu hình"],
+  ["/admin/audit", "◎", "Audit Log"],
 ] as const;
 
 export function AdminSidebar() {
