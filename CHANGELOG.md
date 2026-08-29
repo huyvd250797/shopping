@@ -1,5 +1,34 @@
 # Changelog
 
+## V0.5.0 — Direct Checkout — 2026-08-25
+
+### Added
+- Guest checkout end-to-end cho sản phẩm `DIRECT` và nhánh Direct của `HYBRID`.
+- Form giao hàng: họ tên, SĐT, email optional, tỉnh/thành, quận/huyện, phường/xã, địa chỉ, ghi chú, số lượng.
+- Bước review/xác nhận trước khi tạo đơn.
+- PostgreSQL RPC `create_direct_order` chạy atomic và `SECURITY DEFINER`.
+- Server/database tự đọc lại giá sản phẩm và tính subtotal/total; client total không được tin cậy.
+- `checkout_request_id` unique để chống tạo duplicate khi submit lại/mạng chậm.
+- `access_token` riêng cho mỗi order và RPC `get_order_receipt` để Guest xem receipt an toàn.
+- Trang `/order/success/[code]` hiển thị receipt thật từ database khi có token hợp lệ.
+- Lưu draft checkout và recent order history vào localStorage.
+- Route `/orders` để Guest xem lại đơn gần đây trên đúng trình duyệt.
+- Customer đã đăng nhập được tự động gắn `user_id` vào order qua `auth.uid()`.
+
+### Changed
+- Header “Đơn hàng” chuyển sang `/orders` để Guest không bị ép login.
+- DIRECT hết tồn kho sẽ không còn CTA đặt hàng; HYBRID vẫn giữ Affiliate CTA nếu có.
+- Package/version nâng lên 0.5.0.
+
+### Security / Data
+- Anon/Customer không có generic INSERT policy vào `orders`; tạo đơn chỉ qua validated RPC.
+- Guest receipt không tra cứu chỉ bằng order code; bắt buộc `access_token` UUID bí mật.
+- Database vẫn là source of truth; localStorage chỉ lưu draft và token/history tiện ích.
+
+### Known scope boundary
+- `/admin/orders` và detail đã có read-only để kiểm tra đơn capture; workflow chỉnh trạng thái đầy đủ thuộc V0.6.0.
+- Đồng bộ My Orders UX nâng cao theo account vẫn thuộc V0.8.0.
+
 ## V0.4.0 — Home & Search UX — 2026-08-24
 
 ### Added

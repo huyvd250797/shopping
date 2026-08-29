@@ -1,64 +1,65 @@
-# MyShop V0.4.0 — Home & Search UX
+# MyShop V0.5.0 — Direct Checkout
 
-MyShop là web app bán hàng hybrid: **Affiliate / Direct Order / Hybrid**. V0.4.0 kế thừa nguyên Auth/Roles + Catalog/CMS của V0.3.0 và hoàn thiện trải nghiệm Home/Search.
+MyShop là web app bán hàng hybrid: **Affiliate / Direct Order / Hybrid**. V0.5.0 kế thừa Auth/Roles + Catalog/CMS + Home/Search và bổ sung luồng đặt hàng trực tiếp end-to-end.
 
-Production domain:
-
-**https://bobebunne.vercel.app**
+Production domain: **https://bobebunne.vercel.app**
 
 ## Version history
 
 - ✅ V0.1.0 — Foundation
 - ✅ V0.2.0 — Auth & Roles
 - ✅ V0.3.0 — Catalog & CMS Core
-- ✅ **V0.4.0 — Home & Search UX (current)**
-- ➡️ V0.5.0 — Direct Checkout
+- ✅ V0.4.0 — Home & Search UX
+- ✅ **V0.5.0 — Direct Checkout (current)**
+- ➡️ V0.6.0 — Order Admin
 
-## V0.4.0 đã build
+## V0.5.0 đã build
 
-### Home CMS
-- Banner tạo/sửa/xóa tại `/admin/banners`.
-- Banner gồm title, subtitle, link, button label, thứ tự, active, thời gian bắt đầu/kết thúc.
-- Upload ảnh banner trực tiếp browser → Supabase Storage `site-media`, không đi qua Vercel Function.
-- Home sections trong DB: `FEATURED`, `NEWEST`, `BEST_PRICE`, `RECOMMENDED`.
-- Admin chỉnh title/subtitle/type/item limit/active/sort order.
+### Guest + Customer checkout
+- Guest không cần đăng nhập nếu `require_login_for_checkout=false` (seed mặc định).
+- Customer đã đăng nhập được prefill tên/SĐT/email và order tự gắn `user_id`.
+- Chỉ sản phẩm `DIRECT` hoặc `HYBRID` được checkout nội bộ.
+- Sản phẩm hết kho bị chặn theo `track_stock/stock_qty`.
 
-### Public Home
-- Banner CMS thật.
-- Category quick cards, horizontal scroll trên mobile.
-- Các section sản phẩm do Admin điều khiển.
-- Product cards marketplace-style, responsive 2 cột mobile.
+### Checkout flow
+1. `/checkout/[product]` đọc sản phẩm active từ Supabase.
+2. Khách nhập thông tin giao hàng + số lượng.
+3. Draft tự lưu trong `localStorage` để refresh không mất dữ liệu.
+4. Bước Review cho khách xác nhận lại.
+5. Server Action validate dữ liệu rồi gọi PostgreSQL RPC.
+6. RPC tự đọc lại giá/tồn kho/mode từ database.
+7. RPC tạo `orders + order_items + order_status_history` trong một transaction.
+8. Trả mã đơn dạng `ORD-YYYYMMDD-XXXXXX` + `access_token`.
+9. Trang Success đọc receipt bằng `order_code + access_token`.
+10. Trình duyệt lưu tối đa 20 đơn gần đây để `/orders` xem lại.
 
-### Search UX
-`/search` hỗ trợ query URL:
+## Chống tạo đơn trùng
 
-- `q` — từ khóa
-- `category` — category UUID
-- `min` / `max` — khoảng giá
-- `mode` — `DIRECT` / `AFFILIATE` / `HYBRID`
-- `sort` — `relevant` / `newest` / `price_asc` / `price_desc`
-- `page` — phân trang
+Mỗi draft có `checkout_request_id` UUID. Database có unique index và RPC idempotent: nếu cùng request được submit lại, hệ thống trả lại order đã tạo thay vì INSERT order thứ hai.
 
-Mặc định 24 sản phẩm/trang. Back/Forward trình duyệt hoặc copy URL vẫn giữ đúng filter.
+## Nguyên tắc bảo mật
 
-### Resilience UX
-- `loading.tsx` skeleton cho public shop.
-- `error.tsx` retry state.
-- Search empty state có hướng dẫn reset filter.
+- Client **không** gửi `price`, `subtotal`, `total` đáng tin cậy.
+- Database đọc `products.price` và tự tính lại toàn bộ.
+- Client không có generic INSERT policy vào `orders`.
+- Guest receipt không được lookup chỉ bằng `order_code`; cần `access_token` UUID riêng.
+- `access_token` chỉ lưu trong URL receipt và local history trên thiết bị của khách.
+- localStorage không phải source of truth; Admin đọc order từ database.
 
-## Database — nâng từ V0.3.0
+## Database — nâng từ V0.4.0
 
-Nếu Supabase đã có V0.1 → V0.3, **chỉ chạy thêm**:
+Nếu Supabase production đã có migration 001 → 004, **chỉ chạy thêm**:
 
-`supabase/migrations/202608240004_home_search_ux.sql`
+`supabase/migrations/202608250005_direct_checkout.sql`
 
-Migration sẽ:
-- bổ sung `button_label`, `storage_path` cho banners;
-- tạo `home_sections` + RLS + seed 4 section mặc định;
-- tạo bucket `site-media` tối đa 6MB/ảnh;
-- tạo Storage policies chỉ Admin được ghi/xóa.
+Migration 005 sẽ:
+- thêm `orders.checkout_request_id`;
+- thêm `orders.access_token`;
+- unique indexes chống duplicate/lookup token;
+- tạo RPC `create_direct_order` cho anon + authenticated;
+- tạo RPC `get_order_receipt` token-gated.
 
-Database mới hoàn toàn: chạy 001 → 002 → 003 → 004 → `supabase/seed.sql`.
+Database mới hoàn toàn: chạy 001 → 002 → 003 → 004 → 005 → `supabase/seed.sql`.
 
 ## Environment Variables — production
 
@@ -73,25 +74,27 @@ ADMIN_SEED_PASSWORD=your-strong-password
 ADMIN_SEED_NAME=Administrator
 ```
 
-Legacy key vẫn được source hỗ trợ qua `NEXT_PUBLIC_SUPABASE_ANON_KEY` và `SUPABASE_SERVICE_ROLE_KEY`.
+`SUPABASE_SECRET_KEY` chỉ dùng cho bootstrap Admin script; V0.5.0 checkout không cần service/secret key để tạo order.
 
 ## Supabase Auth URL
 
 - Site URL: `https://bobebunne.vercel.app`
 - Redirect URL: `https://bobebunne.vercel.app/auth/callback`
 
-## Test production V0.4.0
+## Test production V0.5.0
 
-1. Chạy migration 004.
-2. Login `/admin/login`.
-3. Vào **Banner** → tạo banner → upload ảnh → bật Hiển thị.
-4. Kiểm tra Home xuất hiện banner.
-5. Chỉnh 4 Home Sections, đổi title/số SP/thứ tự → Home phản ánh đúng.
-6. Vào `/search`, thử keyword + category + price + Purchase Mode.
-7. Sort giá tăng/giảm và mới nhất.
-8. Chuyển trang rồi Back/Forward để kiểm tra URL giữ filter.
-9. Test mobile: search header, category strip, 2-column product grid.
-10. Tắt banner/section trong Admin → public phải biến mất sau refresh.
+1. Chạy migration `202608250005_direct_checkout.sql` trong Supabase SQL Editor.
+2. Deploy V0.5.0 lên Vercel.
+3. Tạo/đảm bảo có một sản phẩm `DIRECT`, `ACTIVE`, có `price`.
+4. Logout hoàn toàn rồi mở sản phẩm → **Mua ngay**.
+5. Nhập form → Review → **Xác nhận đặt hàng**.
+6. Kiểm tra trang success có mã `ORD-...` và receipt đúng.
+7. Mở `/orders` trên cùng trình duyệt → đơn phải xuất hiện.
+8. Refresh success/history → receipt vẫn mở bằng token.
+9. Login Customer và đặt thêm một đơn → kiểm tra `orders.user_id` được gắn user hiện tại.
+10. Thử double-click / submit lại khi mạng chậm → chỉ một `checkout_request_id`/order được tạo.
+11. Đổi giá sản phẩm trước submit cuối → total order phải lấy giá mới từ database, không lấy subtotal UI cũ.
+12. Với sản phẩm `track_stock=true`, đặt quantity lớn hơn stock → phải bị chặn.
 
 ## Build / deploy
 
@@ -109,4 +112,4 @@ Vercel:
 
 ## Ranh giới version
 
-V0.4.0 **chưa tạo đơn Direct thật**. `/checkout/[product]` vẫn là route chuẩn bị từ roadmap. Tạo `orders + order_items`, guest checkout, validation và lịch sử local sẽ được triển khai ở **V0.5.0 — Direct Checkout**.
+V0.5.0 **đã tạo đơn thật**. Màn hình Admin quản lý order list/detail, search/filter, đổi trạng thái, internal note và timeline vận hành đầy đủ được triển khai ở **V0.6.0 — Order Admin**.

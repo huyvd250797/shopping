@@ -5,6 +5,15 @@ import type { CatalogProduct } from "@/types/catalog";
 export function PurchaseCta({ product }: { product: CatalogProduct }) {
   const affiliateValid = isHttpUrl(product.affiliate_url);
   const directHref = `/checkout/${product.slug}`;
+  const directSoldOut = product.track_stock && (product.stock_qty ?? 0) <= 0;
+
+  if (directSoldOut && product.purchase_mode === "DIRECT") {
+    return <div className="catalog-warning">Sản phẩm đang hết hàng. Vui lòng quay lại sau.</div>;
+  }
+
+  if (directSoldOut && product.purchase_mode === "HYBRID" && !affiliateValid) {
+    return <div className="catalog-warning">Sản phẩm đang hết hàng và liên kết đối tác chưa khả dụng.</div>;
+  }
 
   if (product.purchase_mode === "AFFILIATE") {
     if (!affiliateValid) {
@@ -20,9 +29,9 @@ export function PurchaseCta({ product }: { product: CatalogProduct }) {
   if (product.purchase_mode === "HYBRID") {
     return (
       <div className="catalog-cta-group">
-        <Link className="catalog-cta catalog-cta-primary" href={directHref}>
+        {!directSoldOut && <Link className="catalog-cta catalog-cta-primary" href={directHref}>
           {product.button_label || "Đặt hàng"}
-        </Link>
+        </Link>}
         {affiliateValid && (
           <a className="catalog-cta catalog-cta-secondary" href={product.affiliate_url!} target="_blank" rel="noopener noreferrer sponsored">
             {product.secondary_button_label || "Xem ưu đãi"}

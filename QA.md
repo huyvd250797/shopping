@@ -1,36 +1,34 @@
-# QA — MyShop V0.4.0
+# QA — MyShop V0.5.0
 
-## Static QA đã chạy trong môi trường build
+## Functional checklist
+- [ ] Guest DIRECT checkout không yêu cầu login khi setting=false.
+- [ ] Setting=true redirect Guest sang login.
+- [ ] HYBRID direct branch checkout được; AFFILIATE-only không checkout nội bộ.
+- [ ] Form bắt buộc tên/SĐT/tỉnh/huyện/xã/địa chỉ.
+- [ ] Refresh form khôi phục draft.
+- [ ] Review hiển thị đúng quantity/address/tổng dự kiến.
+- [ ] Database re-price server-side.
+- [ ] Order + item + NEW history tạo atomic.
+- [ ] Success receipt cần token.
+- [ ] `/orders` đọc local recent orders.
+- [ ] Authenticated order gắn đúng `user_id`.
+- [ ] Insufficient stock bị chặn.
+- [ ] Duplicate submit không tạo duplicate order.
 
-- TypeScript compiler parser: **64 TS/TSX files, 0 syntax errors**.
-- Internal import resolver: **0 missing imports**.
-- Next page routes: **23 routes, 0 duplicate routes**.
-- Không phát hiện `any` explicit trong source.
-- Không phát hiện secret key thật trong source.
-- Không chứa cấu hình môi trường phát triển cục bộ trong gói V0.4.0.
-- Migration chain có đủ 001 → 002 → 003 → 004.
+## Security checklist
+- [ ] Không có anon INSERT policy chung cho orders/order_items.
+- [ ] RPC chỉ nhận product id/qty/customer data, không nhận trusted total/status/user_id.
+- [ ] Guest lookup không hoạt động chỉ với order_code.
+- [ ] Không có secret thật trong repository/ZIP.
 
-## Build dependency limitation
-
-`npm install` đã được thử nhưng npm registry bị timeout trong môi trường đóng gói, vì vậy chưa thể chạy `npm run typecheck`, `npm run lint`, `npm run build` với dependency thật ở đây.
-
-Vercel khi deploy phải chạy lại:
-
-```bash
-npm install
-npm run typecheck
-npm run lint
-npm run build
-```
-
-## Smoke test production cần thực hiện
-
-1. Chạy migration 004 trong Supabase SQL Editor.
-2. Login Admin và mở `/admin/banners`.
-3. Tạo banner, upload ảnh, lưu nội dung, kiểm tra Home.
-4. Bật/tắt Home section và thay đổi thứ tự/số sản phẩm.
-5. Search theo keyword/category/mode/price.
-6. Sort newest/price asc/price desc.
-7. Pagination + browser Back/Forward giữ filter.
-8. Mobile kiểm tra header, search input không auto zoom, category horizontal scroll và product grid 2 cột.
-9. Tắt banner hoặc đặt lịch hết hạn, Home không còn hiển thị.
+## Static QA kết quả đóng gói
+- Internal alias import missing: 0.
+- Page route collisions: 0.
+- Page routes: 24.
+- TypeScript parser: 73 TS/TSX files, 0 syntax errors.
+- Gross TS/TSX brace balance: PASS.
+- Migration chain: 001 → 002 → 003 → 004 → 005.
+- Package version: 0.5.0.
+- Local-development URL references in production guidance: 0.
+- Hard-coded production secret scan: 0.
+- `npm install`: không hoàn tất trong môi trường đóng gói do registry timeout; vì vậy không tuyên bố `typecheck/lint/build` thật đã PASS.
