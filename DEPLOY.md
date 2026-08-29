@@ -1,16 +1,25 @@
-# Deploy MyShop V0.6.1 — Production
+# Deploy MyShop V0.7.0 — Production
 
-Domain: **https://bobebunne.vercel.app**
+Production domain: **https://bobebunne.vercel.app**
 
-## 1. Nâng database
+## 1. Nâng database từ V0.6.x
 
-Supabase → SQL Editor → chạy toàn bộ:
+Trong **Supabase → SQL Editor**, chạy toàn bộ file:
 
-`supabase/migrations/202608290006_order_admin.sql`
+`supabase/migrations/202608290007_affiliate_hybrid.sql`
 
-Chỉ chạy migration 006 nếu production đã có V0.1 → V0.5.
+Chỉ chạy migration 007 khi database production đã có migration 001 → 006.
 
-## 2. Vercel Environment Variables
+Migration 007 bổ sung:
+- `affiliate_clicks.source_path`
+- indexes cho affiliate analytics
+- `is_valid_affiliate_url(...)`
+- `record_affiliate_click(...)`
+- `admin_affiliate_kpis(...)`
+- `admin_affiliate_product_stats(...)`
+- constraint URL affiliate cho dữ liệu mới/cập nhật
+
+## 2. Environment Variables trên Vercel
 
 ```env
 NEXT_PUBLIC_SITE_URL=https://bobebunne.vercel.app
@@ -19,21 +28,19 @@ NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_xxxxxxxxx
 ```
 
-Nếu còn dùng script bootstrap Admin, giữ `SUPABASE_SECRET_KEY` ở server-only.
+Không có biến môi trường mới bắt buộc cho V0.7.0.
 
-## 3. Deploy
+## 3. Deploy source
 
-Push source lên GitHub/Vercel theo quy trình hiện tại. Không cấu hình Output Directory thành `out`; để Next.js/Vercel dùng `.next` mặc định.
+Push source lên GitHub/Vercel theo quy trình hiện tại. Không cấu hình Output Directory thành `out`; để Vercel/Next.js dùng `.next` mặc định.
 
-## 4. Smoke test Order Admin
+## 4. Smoke test Affiliate
 
-- Đăng nhập `/admin/login`.
-- `/admin/orders` tải danh sách đơn.
-- Search mã đơn/tên/SĐT hoạt động.
-- Filter trạng thái, Guest/Customer, ngày hoạt động.
-- NEW → CONFIRMED thành công.
-- Timeline có history mới.
-- `/admin/audit` có audit mới.
-- Hủy đơn không có lý do bị chặn.
-- Lưu internal note thành công.
-- Customer không truy cập `/admin` và không gọi RPC Admin được.
+1. Admin tạo/sửa một sản phẩm `AFFILIATE`, URL `https://...`, trạng thái Active.
+2. Mở trang sản phẩm public và bấm CTA Affiliate.
+3. Browser mở `/go/[slug]` rồi redirect sang URL đối tác.
+4. Vào `/admin/affiliate`: số click phải tăng.
+5. Bấm lặp lại cùng sản phẩm trong <10 giây: vẫn redirect nhưng không tăng click liên tục.
+6. Sản phẩm HYBRID phải giữ cả Direct Checkout và Affiliate CTA.
+7. Affiliate URL sai/không khả dụng phải quay về trang sản phẩm với cảnh báo, không redirect ra URL không hợp lệ.
+8. Customer/Guest không truy cập được `/admin/affiliate`.

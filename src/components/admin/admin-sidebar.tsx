@@ -6,6 +6,7 @@ const items = [
   ["/admin/products", "▣", "Sản phẩm"],
   ["/admin/categories", "◫", "Danh mục"],
   ["/admin/orders", "≣", "Đơn hàng"],
+  ["/admin/affiliate", "↗", "Affiliate"],
   ["/admin/banners", "▭", "Banner"],
   ["/admin/settings", "⚙", "Cấu hình"],
   ["/admin/audit", "◎", "Audit Log"],

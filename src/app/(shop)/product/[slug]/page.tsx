@@ -17,8 +17,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
-export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function ProductPage({ params, searchParams }: { params: Promise<{ slug: string }>; searchParams: Promise<{ affiliate?: string }> }) {
   const { slug } = await params;
+  const query = await searchParams;
   const product = await getPublicProductBySlug(slug);
   if (!product) notFound();
 
@@ -35,6 +36,8 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         {product.category && <><Link href={`/category/${product.category.slug}`}>{product.category.name}</Link><span>/</span></>}
         <span>{product.name}</span>
       </div>
+
+      {query.affiliate === "unavailable" && <div className="affiliate-unavailable-message">Liên kết đối tác hiện không khả dụng hoặc cấu hình chưa hợp lệ. Vui lòng thử lại sau.</div>}
 
       <section className="product-detail-shell">
         <div className="product-gallery-public">

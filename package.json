@@ -1,6 +1,6 @@
 {
-  "name": "myshop-order-admin",
-  "version": "0.6.1",
+  "name": "myshop-affiliate-hybrid",
+  "version": "0.7.0",
   "private": true,
   "scripts": {
     "dev": "next dev",

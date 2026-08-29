@@ -20,7 +20,7 @@ export function PurchaseCta({ product }: { product: CatalogProduct }) {
       return <div className="catalog-warning">Liên kết mua hàng đang được cập nhật. Vui lòng quay lại sau.</div>;
     }
     return (
-      <a className="catalog-cta catalog-cta-primary" href={product.affiliate_url!} target="_blank" rel="noopener noreferrer sponsored">
+      <a className="catalog-cta catalog-cta-primary" href={`/go/${product.slug}?src=product_detail`} target="_blank" rel="noopener noreferrer sponsored">
         {product.button_label || "Xem ưu đãi"}
       </a>
     );
@@ -33,7 +33,7 @@ export function PurchaseCta({ product }: { product: CatalogProduct }) {
           {product.button_label || "Đặt hàng"}
         </Link>}
         {affiliateValid && (
-          <a className="catalog-cta catalog-cta-secondary" href={product.affiliate_url!} target="_blank" rel="noopener noreferrer sponsored">
+          <a className="catalog-cta catalog-cta-secondary" href={`/go/${product.slug}?src=product_detail`} target="_blank" rel="noopener noreferrer sponsored">
             {product.secondary_button_label || "Xem ưu đãi"}
           </a>
         )}

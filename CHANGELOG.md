@@ -1,111 +1,28 @@
 # Changelog
 
-## V0.6.1 — Order Admin Type Fix — 2026-08-29
-
-### Fixed
-- Sửa lỗi deploy TypeScript `TS7053` tại `admin/orders/[id]`: không còn dùng `order.status` kiểu `any` để index `ORDER_STATUS_TRANSITIONS`.
-- Sửa lỗi `TS7006` của callback `nextStatuses.map(...)` bằng cách bảo đảm `nextStatuses` có kiểu `OrderStatus[]`.
-- Hardening `order-actions.ts`: status đọc từ Supabase luôn qua `isOrderStatus()` trước khi lookup transition.
-
-### Deployment
-- Không có migration database mới. Nếu Supabase đã chạy migration `006_order_admin.sql` thì chỉ cần deploy source V0.6.1.
-- Nghiệp vụ và schema giữ nguyên V0.6.0.
-
-## V0.6.0 — Order Admin — 2026-08-29
+## V0.7.0 — Affiliate & Hybrid
 
 ### Added
-- Admin order center với search mã đơn/tên/SĐT, filter trạng thái, Guest/Customer, khoảng ngày và pagination.
-- KPI đơn mới / đang xử lý / hoàn tất / đã hủy.
-- Chi tiết order có copy mã đơn, SĐT, địa chỉ; item snapshot; tổng tiền; timeline.
-- Workflow trạng thái có kiểm soát qua RPC `admin_transition_order`.
-- Hủy đơn bắt buộc lý do; archive chỉ sau Completed/Cancelled.
-- Internal note Admin qua RPC `admin_update_order_internal_note`.
-- Audit vận hành cho status change + internal note update.
-- `/admin/audit` hiển thị log gần nhất và link về order.
+- Tracked outbound route `/go/[slug]` for Affiliate/Hybrid CTA.
+- Database RPC `record_affiliate_click(...)` with product/mode/status/URL validation.
+- Anonymous affiliate session cookie and 10-second duplicate-click suppression.
+- `source_path` tracking for affiliate click events.
+- Admin Affiliate Analytics at `/admin/affiliate`.
+- KPI: clicks today, clicks by period, unique visitors, active affiliate products.
+- Per-product click/visitor stats and recent-click table.
+- Dashboard Affiliate KPI and sidebar navigation.
+- SQL URL safety constraint for new/updated affiliate URLs.
 
 ### Changed
-- `/admin/orders` chuyển từ read-only V0.5.0 sang trung tâm xử lý đơn đầy đủ.
-- Dashboard Admin dùng KPI vận hành Order Admin.
-- Sidebar bổ sung Audit Log.
-- Package/version nâng lên 0.6.0.
+- Public Affiliate and Hybrid outbound buttons no longer link directly to the partner URL; they go through `/go/[slug]` first.
+- Product detail shows a safe fallback message when an outbound link is unavailable.
+- Version metadata updated to V0.7.0.
 
-### Security / Data
-- Bỏ generic Admin write policy trực tiếp cho `orders`, `order_items`, `order_status_history`; giữ Admin SELECT.
-- Mutation order chạy qua `SECURITY DEFINER` RPC, pin `search_path`, check role Admin và transaction atomic.
-- Status history + audit được ghi cùng transaction với order update.
+### Security
+- Affiliate tracking uses a `SECURITY DEFINER` RPC with fixed `search_path` and explicit EXECUTE grants.
+- Only active, non-deleted AFFILIATE/HYBRID products with valid http/https URLs may redirect.
+- No IP address is stored for affiliate analytics.
+- Affiliate clicks never create orders or count as internal sales.
 
-### Known scope boundary
-- Affiliate click tracking, URL validation và HYBRID outbound behavior đầy đủ thuộc V0.7.0.
-- Audit search/export chuyên sâu toàn hệ thống vẫn thuộc hardening/production roadmap.
-
-## V0.5.0 — Direct Checkout — 2026-08-25
-
-### Added
-- Guest checkout end-to-end cho sản phẩm `DIRECT` và nhánh Direct của `HYBRID`.
-- Form giao hàng: họ tên, SĐT, email optional, tỉnh/thành, quận/huyện, phường/xã, địa chỉ, ghi chú, số lượng.
-- Bước review/xác nhận trước khi tạo đơn.
-- PostgreSQL RPC `create_direct_order` chạy atomic và `SECURITY DEFINER`.
-- Server/database tự đọc lại giá sản phẩm và tính subtotal/total; client total không được tin cậy.
-- `checkout_request_id` unique để chống tạo duplicate khi submit lại/mạng chậm.
-- `access_token` riêng cho mỗi order và RPC `get_order_receipt` để Guest xem receipt an toàn.
-- Trang `/order/success/[code]` hiển thị receipt thật từ database khi có token hợp lệ.
-- Lưu draft checkout và recent order history vào localStorage.
-- Route `/orders` để Guest xem lại đơn gần đây trên đúng trình duyệt.
-- Customer đã đăng nhập được tự động gắn `user_id` vào order qua `auth.uid()`.
-
-### Changed
-- Header “Đơn hàng” chuyển sang `/orders` để Guest không bị ép login.
-- DIRECT hết tồn kho sẽ không còn CTA đặt hàng; HYBRID vẫn giữ Affiliate CTA nếu có.
-- Package/version nâng lên 0.5.0.
-
-### Security / Data
-- Anon/Customer không có generic INSERT policy vào `orders`; tạo đơn chỉ qua validated RPC.
-- Guest receipt không tra cứu chỉ bằng order code; bắt buộc `access_token` UUID bí mật.
-- Database vẫn là source of truth; localStorage chỉ lưu draft và token/history tiện ích.
-
-### Known scope boundary
-- `/admin/orders` và detail đã có read-only để kiểm tra đơn capture; workflow chỉnh trạng thái đầy đủ thuộc V0.6.0.
-- Đồng bộ My Orders UX nâng cao theo account vẫn thuộc V0.8.0.
-
-## V0.4.0 — Home & Search UX — 2026-08-24
-
-### Added
-- Banner CMS thật tại `/admin/banners`.
-- Upload/replace ảnh banner trực tiếp lên Supabase Storage bucket `site-media`.
-- Lịch hiển thị banner theo `starts_at` / `ends_at`.
-- `home_sections` database: Featured, Newest, Best Price, Recommended.
-- Admin bật/tắt, đổi title/subtitle/type/item limit/sort order của Home sections.
-- Home đọc banner, category và section thật từ Supabase.
-- Search filter: keyword, category, price range, Purchase Mode.
-- Sort: relevant, newest, price ascending, price descending.
-- Pagination 24 sản phẩm/trang, trạng thái filter nằm trong URL.
-- Mobile category navigation dưới header.
-- Skeleton loading, empty state, route error state.
-
-### Changed
-- Product card được polish theo hướng marketplace, có short description/stock/meta trên desktop.
-- Category page có sort + pagination.
-- Admin Dashboard cập nhật KPI Home CMS.
-- Package/version nâng lên 0.4.0.
-
-### Security / Data
-- `site-media` Storage write được bảo vệ bằng `public.is_admin()`.
-- Public chỉ đọc `home_sections` active; Admin mới có quyền ghi.
-- Banner schedule được lọc ở server khi render Home.
-
-### Known scope boundary
-- V0.4.0 chưa tạo order Direct. Direct Checkout end-to-end nằm ở V0.5.0.
-- Affiliate click tracking vẫn nằm ở V0.7.0.
-
-## V0.3.0 — Catalog & CMS Core — 2026-08-24
-- Admin CRUD danh mục/sản phẩm, Purchase Mode, soft-delete/restore.
-- Supabase Storage `product-images`, gallery/thumbnail.
-- Public Home/Category/Search cơ bản/Product Detail đọc Catalog thật.
-
-## V0.2.0 — Auth & Roles — 2026-08-24
-- Customer signup/login/logout, email confirmation, password recovery.
-- Protected Account + profile RPC allow-list.
-- Customer own-order RLS foundation, Admin guard.
-
-## V0.1.0 — Foundation — 2026-08-24
-- Next.js/TypeScript/Supabase foundation, schema, Admin bootstrap, responsive shell.
+### Database
+- Add migration `202608290007_affiliate_hybrid.sql`.

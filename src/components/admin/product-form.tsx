@@ -92,6 +92,7 @@ export function ProductForm({ action, categories, product, submitLabel }: Props)
           <div className="form-field">
             <label htmlFor="affiliate_url">Affiliate URL</label>
             <input id="affiliate_url" name="affiliate_url" type="url" defaultValue={product?.affiliate_url || ""} maxLength={2000} placeholder="https://..." />
+            <small>Chỉ chấp nhận http/https. Public CTA sẽ đi qua /go/[slug] để validate và ghi nhận click trước khi chuyển sang đối tác.</small>
           </div>
           <div className="form-field">
             <label htmlFor="button_label">Label nút chính</label>

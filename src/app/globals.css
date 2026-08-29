@@ -929,3 +929,12 @@ button { cursor: pointer; }
   .order-filter-actions > * { flex: 1; }
   .order-pagination { justify-content: space-between; }
 }
+
+/* V0.7.0 — Affiliate & Hybrid */
+.affiliate-unavailable-message { margin: 12px 0 14px; padding: 12px 14px; border: 1px solid #f0cf9f; border-radius: 10px; background: #fff8e8; color: #8a5714; font-size: 12px; font-weight: 750; }
+.affiliate-kpi-grid { margin-bottom: 14px; }
+.affiliate-admin-table { min-width: 900px; }
+.affiliate-recent-table { min-width: 780px; }
+.affiliate-table-sub { display: block; margin-top: 4px; color: var(--ink-500); font-size: 9px; font-weight: 500; }
+.admin-table-link { color: var(--brand-700); font-weight: 800; }
+.admin-table-link:hover { text-decoration: underline; }
