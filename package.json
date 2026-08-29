@@ -1,6 +1,6 @@
 {
-  "name": "myshop-direct-checkout",
-  "version": "0.5.0",
+  "name": "myshop-order-admin",
+  "version": "0.6.1",
   "private": true,
   "scripts": {
     "dev": "next dev",

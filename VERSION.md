@@ -6,16 +6,20 @@
 - ✅ V0.2.0 — Auth & Roles
 - ✅ V0.3.0 — Catalog & CMS Core
 - ✅ V0.4.0 — Home & Search UX
-- ✅ **V0.5.0 — Direct Checkout**
+- ✅ V0.5.0 — Direct Checkout
+- ✅ V0.6.0 — Order Admin
+- ✅ **V0.6.1 — Order Admin Type Fix**
 
 ## Version hiện tại
 
-**V0.5.0 — Direct Checkout**
+**V0.6.1 — Order Admin Type Fix**
 
-Khách Guest hoặc Customer đều có thể đặt sản phẩm DIRECT/HYBRID. Checkout gồm nhập thông tin → xác nhận → tạo đơn atomic trong Supabase → mã đơn → receipt. Giá/tổng được database đọc và tính lại, có idempotency chống đơn trùng, draft + recent order history trên trình duyệt.
+Bản vá production cho V0.6.0: sửa TypeScript `OrderStatus` ở trang chi tiết đơn và action chuyển trạng thái. Không thay đổi database/migration hay nghiệp vụ Order Admin.
+
+Admin có thể tìm kiếm/lọc đơn, xem chi tiết, chuyển trạng thái theo workflow có kiểm soát, nhập ghi chú nội bộ, hủy/lưu trữ đơn, xem timeline trạng thái và audit thao tác. Mọi mutation quan trọng đi qua RPC atomic để status + history + audit không bị lệch nhau.
 
 ## Version tiếp theo
 
-➡️ **V0.6.0 — Order Admin**
+➡️ **V0.7.0 — Affiliate & Hybrid**
 
-Admin order list/detail, filter/search, status workflow, internal note, status history và audit vận hành.
+Hoàn thiện outbound Affiliate CTA, HYBRID behavior, affiliate click tracking, URL validation và analytics cơ bản cho click đối tác.

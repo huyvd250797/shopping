@@ -1,5 +1,43 @@
 # Changelog
 
+## V0.6.1 — Order Admin Type Fix — 2026-08-29
+
+### Fixed
+- Sửa lỗi deploy TypeScript `TS7053` tại `admin/orders/[id]`: không còn dùng `order.status` kiểu `any` để index `ORDER_STATUS_TRANSITIONS`.
+- Sửa lỗi `TS7006` của callback `nextStatuses.map(...)` bằng cách bảo đảm `nextStatuses` có kiểu `OrderStatus[]`.
+- Hardening `order-actions.ts`: status đọc từ Supabase luôn qua `isOrderStatus()` trước khi lookup transition.
+
+### Deployment
+- Không có migration database mới. Nếu Supabase đã chạy migration `006_order_admin.sql` thì chỉ cần deploy source V0.6.1.
+- Nghiệp vụ và schema giữ nguyên V0.6.0.
+
+## V0.6.0 — Order Admin — 2026-08-29
+
+### Added
+- Admin order center với search mã đơn/tên/SĐT, filter trạng thái, Guest/Customer, khoảng ngày và pagination.
+- KPI đơn mới / đang xử lý / hoàn tất / đã hủy.
+- Chi tiết order có copy mã đơn, SĐT, địa chỉ; item snapshot; tổng tiền; timeline.
+- Workflow trạng thái có kiểm soát qua RPC `admin_transition_order`.
+- Hủy đơn bắt buộc lý do; archive chỉ sau Completed/Cancelled.
+- Internal note Admin qua RPC `admin_update_order_internal_note`.
+- Audit vận hành cho status change + internal note update.
+- `/admin/audit` hiển thị log gần nhất và link về order.
+
+### Changed
+- `/admin/orders` chuyển từ read-only V0.5.0 sang trung tâm xử lý đơn đầy đủ.
+- Dashboard Admin dùng KPI vận hành Order Admin.
+- Sidebar bổ sung Audit Log.
+- Package/version nâng lên 0.6.0.
+
+### Security / Data
+- Bỏ generic Admin write policy trực tiếp cho `orders`, `order_items`, `order_status_history`; giữ Admin SELECT.
+- Mutation order chạy qua `SECURITY DEFINER` RPC, pin `search_path`, check role Admin và transaction atomic.
+- Status history + audit được ghi cùng transaction với order update.
+
+### Known scope boundary
+- Affiliate click tracking, URL validation và HYBRID outbound behavior đầy đủ thuộc V0.7.0.
+- Audit search/export chuyên sâu toàn hệ thống vẫn thuộc hardening/production roadmap.
+
 ## V0.5.0 — Direct Checkout — 2026-08-25
 
 ### Added
