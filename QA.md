@@ -1,34 +1,41 @@
-# QA — MyShop V0.5.0
+# QA — MyShop V0.6.0
 
 ## Functional checklist
-- [ ] Guest DIRECT checkout không yêu cầu login khi setting=false.
-- [ ] Setting=true redirect Guest sang login.
-- [ ] HYBRID direct branch checkout được; AFFILIATE-only không checkout nội bộ.
-- [ ] Form bắt buộc tên/SĐT/tỉnh/huyện/xã/địa chỉ.
-- [ ] Refresh form khôi phục draft.
-- [ ] Review hiển thị đúng quantity/address/tổng dự kiến.
-- [ ] Database re-price server-side.
-- [ ] Order + item + NEW history tạo atomic.
-- [ ] Success receipt cần token.
-- [ ] `/orders` đọc local recent orders.
-- [ ] Authenticated order gắn đúng `user_id`.
-- [ ] Insufficient stock bị chặn.
-- [ ] Duplicate submit không tạo duplicate order.
+- [ ] `/admin/orders` search theo mã đơn/tên/SĐT.
+- [ ] Filter status hoạt động.
+- [ ] Filter Guest/Customer hoạt động.
+- [ ] Filter date from/to theo ngày vận hành Việt Nam.
+- [ ] Pagination giữ nguyên query filter.
+- [ ] NEW → CONFIRMED thành công.
+- [ ] CONFIRMED → PROCESSING thành công.
+- [ ] PROCESSING → SHIPPING thành công.
+- [ ] SHIPPING → COMPLETED thành công.
+- [ ] COMPLETED → ARCHIVED thành công.
+- [ ] CANCELLED chỉ cho phép từ NEW/CONFIRMED/PROCESSING/SHIPPING.
+- [ ] CANCELLED bắt buộc lý do.
+- [ ] ARCHIVED không còn transition tiếp theo.
+- [ ] Mỗi transition tạo status history + audit.
+- [ ] Internal note lưu/reload đúng và có audit.
+- [ ] Copy mã đơn/SĐT/địa chỉ hoạt động trên HTTPS production.
+- [ ] `/admin/audit` hiển thị order audit và link detail.
 
 ## Security checklist
-- [ ] Không có anon INSERT policy chung cho orders/order_items.
-- [ ] RPC chỉ nhận product id/qty/customer data, không nhận trusted total/status/user_id.
-- [ ] Guest lookup không hoạt động chỉ với order_code.
+- [ ] Customer/Guest không execute được Order Admin RPC.
+- [ ] Generic direct UPDATE `orders` qua client bị RLS chặn.
+- [ ] Direct INSERT `order_status_history` qua client bị RLS chặn.
+- [ ] RPC pin `search_path` và chỉ grant `authenticated`.
+- [ ] RPC tự check `public.is_admin()`.
 - [ ] Không có secret thật trong repository/ZIP.
 
 ## Static QA kết quả đóng gói
-- Internal alias import missing: 0.
-- Page route collisions: 0.
-- Page routes: 24.
-- TypeScript parser: 73 TS/TSX files, 0 syntax errors.
-- Gross TS/TSX brace balance: PASS.
-- Migration chain: 001 → 002 → 003 → 004 → 005.
-- Package version: 0.5.0.
-- Local-development URL references in production guidance: 0.
-- Hard-coded production secret scan: 0.
-- `npm install`: không hoàn tất trong môi trường đóng gói do registry timeout; vì vậy không tuyên bố `typecheck/lint/build` thật đã PASS.
+- TypeScript parser: **75 TS/TSX files, 0 syntax errors**.
+- Internal import missing: **0**.
+- Page routes: **24**.
+- Page route collisions: **0**.
+- Direct order table mutations trong `src`: **0**; V0.6.0 mutation dùng RPC.
+- Migration chain: **001 → 002 → 003 → 004 → 005 → 006**.
+- Package version: **0.6.0**.
+- Local-development URL references: **0**.
+- Production domain: `https://bobebunne.vercel.app`.
+- Hard-coded production secret scan: **0**.
+- `npm install`: package registry không phản hồi trong giới hạn thời gian của môi trường đóng gói; vì vậy không tuyên bố `typecheck/lint/build` dependency-level đã PASS.

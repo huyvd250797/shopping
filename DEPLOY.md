@@ -1,4 +1,4 @@
-# Deploy MyShop V0.5.0 — Production
+# Deploy MyShop V0.6.0 — Production
 
 Domain: **https://bobebunne.vercel.app**
 
@@ -6,21 +6,11 @@ Domain: **https://bobebunne.vercel.app**
 
 Supabase → SQL Editor → chạy toàn bộ:
 
-`supabase/migrations/202608250005_direct_checkout.sql`
+`supabase/migrations/202608290006_order_admin.sql`
 
-Chỉ chạy migration 005 nếu production đã có V0.1 → V0.4.
+Chỉ chạy migration 006 nếu production đã có V0.1 → V0.5.
 
-## 2. Kiểm tra Site Setting
-
-`require_login_for_checkout` trong `public.site_settings` nên là `false` nếu muốn Guest đặt hàng không cần login.
-
-SQL kiểm tra:
-
-```sql
-select key, value from public.site_settings where key = 'require_login_for_checkout';
-```
-
-## 3. Vercel Environment Variables
+## 2. Vercel Environment Variables
 
 ```env
 NEXT_PUBLIC_SITE_URL=https://bobebunne.vercel.app
@@ -29,17 +19,21 @@ NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_xxxxxxxxx
 ```
 
-Admin bootstrap secret giữ server-only nếu bạn còn dùng script seed Admin.
+Nếu còn dùng script bootstrap Admin, giữ `SUPABASE_SECRET_KEY` ở server-only.
 
-## 4. Deploy
+## 3. Deploy
 
-Push source lên GitHub/Vercel hoặc upload theo quy trình hiện tại. Không cấu hình Output Directory thành `out`; để Next.js/Vercel dùng `.next` mặc định.
+Push source lên GitHub/Vercel theo quy trình hiện tại. Không cấu hình Output Directory thành `out`; để Next.js/Vercel dùng `.next` mặc định.
 
-## 5. Smoke test production
+## 4. Smoke test Order Admin
 
-- Guest đặt một DIRECT order.
-- Receipt mở đúng bằng token.
-- `/orders` thấy recent order.
-- Supabase `orders`, `order_items`, `order_status_history` có row tương ứng.
-- Đặt lại cùng request không tạo order trùng.
-- Customer login đặt order → `user_id` khác null.
+- Đăng nhập `/admin/login`.
+- `/admin/orders` tải danh sách đơn.
+- Search mã đơn/tên/SĐT hoạt động.
+- Filter trạng thái, Guest/Customer, ngày hoạt động.
+- NEW → CONFIRMED thành công.
+- Timeline có history mới.
+- `/admin/audit` có audit mới.
+- Hủy đơn không có lý do bị chặn.
+- Lưu internal note thành công.
+- Customer không truy cập `/admin` và không gọi RPC Admin được.
