@@ -1,9 +1,11 @@
-# Build Notes — V0.4.0
+# Build Notes — V0.5.0
 
-- Source nâng trực tiếp từ MyShop V0.3.0 user cung cấp.
-- Không thay đổi business boundary của Auth, Catalog, Purchase Mode.
-- Migration mới: `202608240004_home_search_ux.sql`.
-- Banner media upload trực tiếp browser → Supabase Storage `site-media` để tránh Vercel Function body limit.
-- Banner `datetime-local` được server hiểu theo múi giờ Việt Nam `+07:00`.
-- Public filter state được lưu bằng GET query URL, không cần client state library.
-- V0.4.0 không insert `orders`/`order_items`; Direct Checkout giữ cho V0.5.0.
+V0.5.0 nâng trực tiếp từ V0.4.0 và giữ nguyên Auth/Roles, Catalog/CMS, Home/Search.
+
+Điểm kiến trúc chính: tạo order bằng PostgreSQL `SECURITY DEFINER` RPC để hỗ trợ Guest mà không mở generic RLS INSERT cho anon. Function là transaction boundary nên order header/item/status history cùng commit hoặc cùng rollback.
+
+`checkout_request_id` làm idempotency key. `access_token` dùng để Guest xem receipt an toàn mà không dựa vào order code dễ chia sẻ.
+
+Production URL dùng xuyên suốt: `https://bobebunne.vercel.app`.
+
+Build limitation: `npm install` timed out against the package registry in the packaging environment, so full dependency typecheck/lint/build was not claimed. TypeScript global parser successfully parsed all 73 TS/TSX source files with 0 syntax errors.

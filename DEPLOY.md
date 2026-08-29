@@ -1,46 +1,45 @@
-# Deploy — MyShop V0.4.0
+# Deploy MyShop V0.5.0 — Production
 
-Production: `https://bobebunne.vercel.app`
+Domain: **https://bobebunne.vercel.app**
 
-## 1. Migration
+## 1. Nâng database
 
-Database đang ở V0.3.0: chạy **duy nhất file mới** trong Supabase SQL Editor:
+Supabase → SQL Editor → chạy toàn bộ:
 
-`supabase/migrations/202608240004_home_search_ux.sql`
+`supabase/migrations/202608250005_direct_checkout.sql`
 
-Database mới: chạy 001 → 002 → 003 → 004 → seed.
+Chỉ chạy migration 005 nếu production đã có V0.1 → V0.4.
 
-## 2. Auth URL
+## 2. Kiểm tra Site Setting
 
-Supabase → Authentication → URL Configuration:
-- Site URL: `https://bobebunne.vercel.app`
-- Redirect URL: `https://bobebunne.vercel.app/auth/callback`
+`require_login_for_checkout` trong `public.site_settings` nên là `false` nếu muốn Guest đặt hàng không cần login.
 
-## 3. Vercel env
+SQL kiểm tra:
+
+```sql
+select key, value from public.site_settings where key = 'require_login_for_checkout';
+```
+
+## 3. Vercel Environment Variables
 
 ```env
 NEXT_PUBLIC_SITE_URL=https://bobebunne.vercel.app
 NEXT_PUBLIC_SHOP_NAME=MyShop
 NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_xxxxxxxxx
-SUPABASE_SECRET_KEY=sb_secret_xxxxxxxxx
 ```
 
-Có thể dùng legacy `NEXT_PUBLIC_SUPABASE_ANON_KEY` / `SUPABASE_SERVICE_ROLE_KEY` nếu project của bạn vẫn dùng key cũ.
+Admin bootstrap secret giữ server-only nếu bạn còn dùng script seed Admin.
 
-## 4. Vercel build
+## 4. Deploy
 
-- Framework: Next.js
-- Install: mặc định `npm install`
-- Build: `npm run build`
-- Output Directory: **để trống**
+Push source lên GitHub/Vercel hoặc upload theo quy trình hiện tại. Không cấu hình Output Directory thành `out`; để Next.js/Vercel dùng `.next` mặc định.
 
-Sau khi thêm migration hoặc env, Redeploy project.
+## 5. Smoke test production
 
-## 5. Smoke test
-
-- `/` load banner + Home sections.
-- `/admin/banners` tạo/sửa/banner upload được.
-- `/search` filter/sort/pagination hoạt động.
-- `/category/[slug]` sort/pagination hoạt động.
-- Mobile header/category strip/product grid không tràn ngang.
+- Guest đặt một DIRECT order.
+- Receipt mở đúng bằng token.
+- `/orders` thấy recent order.
+- Supabase `orders`, `order_items`, `order_status_history` có row tương ứng.
+- Đặt lại cùng request không tạo order trùng.
+- Customer login đặt order → `user_id` khác null.

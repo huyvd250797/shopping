@@ -29,7 +29,7 @@ export async function ShopHeader() {
           </form>
 
           <nav className="header-actions" aria-label="Điều hướng chính">
-            <Link className="header-link header-action-compact" href="/account/orders"><span aria-hidden>▤</span><span className="header-action-text">Đơn hàng</span></Link>
+            <Link className="header-link header-action-compact" href="/orders"><span aria-hidden>▤</span><span className="header-action-text">Đơn hàng</span></Link>
             {current ? (
               <>
                 <Link className="header-link header-action-compact" href="/account"><span aria-hidden>●</span><span className="header-action-text">{current.profile?.full_name || "Tài khoản"}</span></Link>
