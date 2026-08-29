@@ -1,4 +1,4 @@
-# Deploy MyShop V0.7.0 — Production
+# Deploy MyShop V0.7.1 — Production
 
 Production domain: **https://bobebunne.vercel.app**
 
@@ -28,7 +28,7 @@ NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_xxxxxxxxx
 ```
 
-Không có biến môi trường mới bắt buộc cho V0.7.0.
+Không có biến môi trường hoặc migration mới bắt buộc cho V0.7.1.
 
 ## 3. Deploy source
 

@@ -33,9 +33,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     const row = Array.isArray(data) ? (data[0] as { target_url?: unknown; recorded?: unknown } | undefined) : undefined;
     const target = typeof row?.target_url === "string" ? row.target_url : null;
-    if (error || !isHttpUrl(target)) return unavailable(request, slug);
+    if (error || target === null || !isHttpUrl(target)) return unavailable(request, slug);
 
-    const response = NextResponse.redirect(target, 303);
+    const targetUrl = new URL(target);
+    const response = NextResponse.redirect(targetUrl, 303);
     response.headers.set("Cache-Control", "no-store, max-age=0");
     if (!SESSION_RE.test(existingSession)) {
       response.cookies.set(SESSION_COOKIE, sessionId, {

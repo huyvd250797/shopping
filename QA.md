@@ -1,4 +1,4 @@
-# QA — V0.7.0 Affiliate & Hybrid
+# QA — V0.7.1 Affiliate Redirect Type Fix
 
 ## Functional
 - [x] AFFILIATE CTA uses `/go/[slug]`.
@@ -26,3 +26,11 @@
 - Internal `@/` import resolver: 0 missing imports.
 - Page routes: 25, 0 collisions.
 - `npm install` was attempted but the package registry did not respond before the environment timeout; therefore a full dependency-backed `npm run build` is **not** claimed as PASS in this package.
+
+## V0.7.1 patch verification
+- Focused TypeScript strict check for affiliate redirect narrowing: PASS.
+- `src/app/go/[slug]/route.ts`: `target_url` is explicitly narrowed from `string | null` before redirect.
+- Redirect uses a validated `URL` object.
+- 79 TS/TSX files parsed: 0 syntax errors.
+- `npm install` could not complete in the packaging environment because the package registry timed out; therefore a full `next build` was not claimed as PASS here.
+- No database migration is required for V0.7.1.

@@ -1,5 +1,15 @@
 # Changelog
 
+## V0.7.1 — Affiliate Redirect Type Fix
+
+### Fixed
+- Fix Vercel/TypeScript build error TS2345 in `src/app/go/[slug]/route.ts`.
+- Explicitly narrow `target_url` from `string | null` to `string` before redirect.
+- Build a validated `URL` object before calling `NextResponse.redirect(...)`.
+
+### Database
+- No new migration. Database remains at migration 007.
+
 ## V0.7.0 — Affiliate & Hybrid
 
 ### Added

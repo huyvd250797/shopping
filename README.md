@@ -1,10 +1,10 @@
-# MyShop V0.7.0 — Affiliate & Hybrid
+# MyShop V0.7.1 — Affiliate Redirect Type Fix
 
 Production: **https://bobebunne.vercel.app**
 
-MyShop là web bán hàng hybrid gồm **Direct Order + Affiliate**. V0.7.0 hoàn thiện outbound affiliate tracking và analytics mà không thay đổi luồng Direct Checkout/Order Admin hiện có.
+MyShop là web bán hàng hybrid gồm **Direct Order + Affiliate**. V0.7.1 là bản vá type-safe cho outbound affiliate redirect của V0.7.0; toàn bộ chức năng Affiliate & Hybrid được giữ nguyên.
 
-## V0.7.0 có gì mới?
+## V0.7.1 sửa gì?
 
 - Affiliate CTA đi qua `/go/[slug]` thay vì mở URL đối tác trực tiếp.
 - Redirect chỉ xảy ra khi sản phẩm:
@@ -50,6 +50,6 @@ Xem `DEPLOY.md` để test production.
 
 ## Version history
 
-V0.1.0 Foundation → V0.2.0 Auth & Roles → V0.3.0 Catalog → V0.4.0 Home/Search → V0.5.0 Direct Checkout → V0.6.0 Order Admin → V0.6.1 Type Fix → **V0.7.0 Affiliate & Hybrid**.
+V0.1.0 Foundation → V0.2.0 Auth & Roles → V0.3.0 Catalog → V0.4.0 Home/Search → V0.5.0 Direct Checkout → V0.6.0 Order Admin → V0.6.1 Type Fix → V0.7.0 Affiliate & Hybrid → **V0.7.1 Affiliate Redirect Type Fix**.
 
 Next roadmap: **V0.8.0 — Customer Account**.
