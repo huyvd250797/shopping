@@ -49,7 +49,13 @@ export default async function CheckoutPage({ params }: { params: Promise<{ produ
           customerName: current?.profile?.full_name || "",
           phone: current?.profile?.phone || "",
           email: current?.user.email || "",
+          province: current?.profile?.province || "",
+          district: current?.profile?.district || "",
+          ward: current?.profile?.ward || "",
+          addressLine: current?.profile?.address_line || "",
         }}
+        requireLogin={settings.requireLogin}
+        isAuthenticated={Boolean(current)}
       />
     </div>
   );

@@ -1,36 +1,34 @@
-# QA — V0.7.1 Affiliate Redirect Type Fix
+# QA — V0.8.0 Customer Account
 
 ## Functional
-- [x] AFFILIATE CTA uses `/go/[slug]`.
-- [x] HYBRID Direct CTA still uses `/checkout/[slug]`.
-- [x] HYBRID Affiliate CTA uses `/go/[slug]`.
-- [x] Missing/invalid Affiliate URL has safe fallback.
-- [x] Admin Affiliate Analytics route added.
-- [x] Dashboard Affiliate KPI added.
+- [x] Customer profile supports default shipping address.
+- [x] Logged-in checkout pre-fills profile/address.
+- [x] My Orders reads account orders from database by `user_id`.
+- [x] My Orders supports status filter + pagination.
+- [x] Customer order detail shows item snapshots, totals, address snapshot and status timeline.
+- [x] Recent guest orders can be securely claimed from browser history with access token.
+- [x] Admin can enable/disable guest checkout at `/admin/settings`.
 
-## Database / Security
-- [x] RPC validates active + non-deleted + mode + URL before redirect.
-- [x] RPC uses `SECURITY DEFINER` with fixed `search_path`.
-- [x] RPC EXECUTE limited to anon/authenticated as intended.
-- [x] Admin analytics RPC checks `is_admin()`.
-- [x] Duplicate suppression window: 10 seconds per product/user or product/session.
-- [x] No IP storage added.
-- [x] Affiliate event does not create an order.
+## Security
+- [x] Existing RLS keeps customer orders scoped to the current user.
+- [x] Profile RPC does not expose role/email mutation.
+- [x] Guest-order claim requires authentication + random access token.
+- [x] No auto-link by phone/email.
+- [x] Admin setting mutation requires Admin session and creates audit log.
 
-## Packaging
-- Static TypeScript/TSX parse and internal-import scan performed before packaging.
-- Full dependency build is reported separately based on environment availability.
+## Regression
+- [x] Direct Checkout still recalculates price on server.
+- [x] Affiliate/Hybrid outbound flow remains unchanged.
+- [x] Order Admin workflow remains unchanged.
+- [x] V0.7.1 affiliate redirect narrowing is preserved.
 
-## Tool verification
-- TypeScript transpile parser: 79 TS/TSX files, 0 syntax diagnostics.
-- Internal `@/` import resolver: 0 missing imports.
-- Page routes: 25, 0 collisions.
-- `npm install` was attempted but the package registry did not respond before the environment timeout; therefore a full dependency-backed `npm run build` is **not** claimed as PASS in this package.
+## Packaging verification
+- Static source checks are run before packaging.
+- Run migration 008 before deploying source to production.
 
-## V0.7.1 patch verification
-- Focused TypeScript strict check for affiliate redirect narrowing: PASS.
-- `src/app/go/[slug]/route.ts`: `target_url` is explicitly narrowed from `string | null` before redirect.
-- Redirect uses a validated `URL` object.
-- 79 TS/TSX files parsed: 0 syntax errors.
-- `npm install` could not complete in the packaging environment because the package registry timed out; therefore a full `next build` was not claimed as PASS here.
-- No database migration is required for V0.7.1.
+## Verification performed in packaging environment
+- TypeScript/TSX transpile parser: **84 files, 0 syntax diagnostics**.
+- Internal `@/` import resolver: **0 missing imports**.
+- Page routes detected: **26**.
+- Global TypeScript semantic check was compared against the received V0.7.x baseline without installed project dependencies: **no new non-dependency diagnostics introduced**.
+- `npm install --no-audit --no-fund` was attempted, but the package registry did not respond before the environment timeout; therefore a full dependency-backed `npm run build` is **not claimed as PASS** in this package.

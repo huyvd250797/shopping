@@ -1,44 +1,36 @@
-# MyShop V0.7.1 — Affiliate Redirect Type Fix
+# MyShop V0.8.0 — Customer Account
 
-Production: **https://bobebunne.vercel.app**
+Production hiện tại: **https://bobebunne.vercel.app**
 
-MyShop là web bán hàng hybrid gồm **Direct Order + Affiliate**. V0.7.1 là bản vá type-safe cho outbound affiliate redirect của V0.7.0; toàn bộ chức năng Affiliate & Hybrid được giữ nguyên.
+MyShop là web bán hàng hybrid gồm **Direct Order + Affiliate**. V0.8.0 hoàn thiện roadmap **Customer Account**: hồ sơ + địa chỉ mặc định, lịch sử đơn theo tài khoản, đồng bộ an toàn đơn guest từ trình duyệt và cấu hình Guest Checkout trong Admin.
 
-## V0.7.1 sửa gì?
+## V0.8.0 có gì mới?
 
-- Affiliate CTA đi qua `/go/[slug]` thay vì mở URL đối tác trực tiếp.
-- Redirect chỉ xảy ra khi sản phẩm:
-  - đang `active`
-  - chưa xóa mềm
-  - mode là `AFFILIATE` hoặc `HYBRID`
-  - URL là `http/https` hợp lệ
-- Click được ghi vào `affiliate_clicks` trước khi redirect.
-- Guest được gắn một session cookie ẩn danh để thống kê visitor và chống đếm trùng nhẹ.
-- Cùng session/user bấm cùng sản phẩm trong 10 giây vẫn được redirect nhưng chỉ tính một click.
-- Admin Analytics tại `/admin/affiliate`.
-- Không lưu IP.
-- Affiliate click **không phải order** và không được tính doanh thu nội bộ.
+- `/account`:
+  - cập nhật họ tên, số điện thoại;
+  - lưu địa chỉ giao hàng mặc định: Tỉnh/Thành phố, Quận/Huyện, Phường/Xã, địa chỉ chi tiết;
+  - KPI tổng đơn / đang xử lý / hoàn tất.
+- `/account/orders`:
+  - danh sách đơn theo `user_id`;
+  - lọc theo trạng thái;
+  - phân trang;
+  - đồng bộ các đơn guest gần đây còn `order_code + access_token` trên thiết bị.
+- `/account/orders/[id]`:
+  - chi tiết sản phẩm;
+  - snapshot thông tin nhận hàng;
+  - tổng tiền;
+  - timeline trạng thái.
+- Direct Checkout tự điền hồ sơ + địa chỉ mặc định khi customer đã đăng nhập.
+- `/admin/settings` cho phép bật/tắt **Require login for checkout**.
+- Không tự liên kết đơn guest chỉ bằng số điện thoại/email; phải có access token ngẫu nhiên của chính đơn đó.
 
-## Hybrid behavior
+## Database migration
 
-### DIRECT
-CTA → `/checkout/[slug]` → tạo order nội bộ.
+Nếu database production đang ở migration 007, chạy:
 
-### AFFILIATE
-CTA → `/go/[slug]` → validate + track → redirect website đối tác.
+`supabase/migrations/202609120008_customer_account.sql`
 
-### HYBRID
-Hiển thị đồng thời:
-- CTA Direct → checkout nội bộ.
-- CTA Affiliate → tracked outbound route.
-
-## Nâng database
-
-Nếu production đang ở V0.6.0/V0.6.1, chạy duy nhất:
-
-`supabase/migrations/202608290007_affiliate_hybrid.sql`
-
-Xem `DEPLOY.md` để test production.
+Migration 008 bổ sung địa chỉ mặc định vào `profiles`, RPC `update_my_customer_profile(...)` và RPC `claim_recent_order(...)`.
 
 ## Admin routes
 
@@ -46,10 +38,11 @@ Xem `DEPLOY.md` để test production.
 - `/admin/products` — Catalog
 - `/admin/orders` — Order Admin
 - `/admin/affiliate` — Affiliate Analytics
+- `/admin/settings` — Guest Checkout policy
 - `/admin/audit` — Audit Log
 
 ## Version history
 
-V0.1.0 Foundation → V0.2.0 Auth & Roles → V0.3.0 Catalog → V0.4.0 Home/Search → V0.5.0 Direct Checkout → V0.6.0 Order Admin → V0.6.1 Type Fix → V0.7.0 Affiliate & Hybrid → **V0.7.1 Affiliate Redirect Type Fix**.
+V0.1.0 Foundation → V0.2.0 Auth & Roles → V0.3.0 Catalog → V0.4.0 Home/Search → V0.5.0 Direct Checkout → V0.6.0 Order Admin → V0.6.1 Type Fix → V0.7.0 Affiliate & Hybrid → V0.7.1 Affiliate Redirect Type Fix → **V0.8.0 Customer Account**.
 
-Next roadmap: **V0.8.0 — Customer Account**.
+Next roadmap: **V0.9.0 — Hardening**.

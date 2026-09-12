@@ -1,6 +1,6 @@
 # MyShop Version
 
-**Current:** V0.7.1 — Affiliate Redirect Type Fix
+**Current:** V0.8.0 — Customer Account
 
 ## Built versions
 - V0.1.0 — Foundation
@@ -12,6 +12,7 @@
 - V0.6.1 — Order Admin Type Fix
 - V0.7.0 — Affiliate & Hybrid
 - V0.7.1 — Affiliate Redirect Type Fix
+- V0.8.0 — Customer Account
 
 ## Next
-**V0.8.0 — Customer Account**
+**V0.9.0 — Hardening**

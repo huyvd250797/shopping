@@ -54,10 +54,16 @@ type Props = {
     customerName: string;
     phone: string;
     email: string;
+    province: string;
+    district: string;
+    ward: string;
+    addressLine: string;
   };
+  requireLogin: boolean;
+  isAuthenticated: boolean;
 };
 
-export function CheckoutForm({ product, defaults }: Props) {
+export function CheckoutForm({ product, defaults, requireLogin, isAuthenticated }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [step, setStep] = useState<"form" | "review">("form");
@@ -68,10 +74,10 @@ export function CheckoutForm({ product, defaults }: Props) {
     customer_name: defaults.customerName,
     phone: defaults.phone,
     email: defaults.email,
-    province: "",
-    district: "",
-    ward: "",
-    address_line: "",
+    province: defaults.province,
+    district: defaults.district,
+    ward: defaults.ward,
+    address_line: defaults.addressLine,
     note: "",
     checkout_request_id: "",
   });
@@ -84,6 +90,10 @@ export function CheckoutForm({ product, defaults }: Props) {
       customer_name: draft?.customer_name || current.customer_name,
       phone: draft?.phone || current.phone,
       email: draft?.email || current.email,
+      province: draft?.province || current.province,
+      district: draft?.district || current.district,
+      ward: draft?.ward || current.ward,
+      address_line: draft?.address_line || current.address_line,
       checkout_request_id: draft?.checkout_request_id || newRequestId(),
     }));
     setHydrated(true);
@@ -185,7 +195,7 @@ export function CheckoutForm({ product, defaults }: Props) {
 
         {step === "form" ? (
           <>
-            <div className="checkout-card-head"><h1>Thông tin nhận hàng</h1><p>Không cần đăng nhập. Thông tin này dùng để xử lý đơn và giao hàng.</p></div>
+            <div className="checkout-card-head"><h1>Thông tin nhận hàng</h1><p>{isAuthenticated ? "Thông tin hồ sơ và địa chỉ mặc định đã được điền sẵn; bạn có thể sửa riêng cho đơn này." : requireLogin ? "Cửa hàng yêu cầu đăng nhập trước khi đặt hàng." : "Bạn có thể đặt hàng nhanh không cần đăng nhập. Thông tin này dùng để xử lý đơn và giao hàng."}</p></div>
             <div className="checkout-form-grid">
               <label className="checkout-field checkout-field-full"><span>Họ tên người nhận *</span><input value={values.customer_name} maxLength={120} autoComplete="name" onChange={(e) => update("customer_name", e.target.value)} /></label>
               <label className="checkout-field"><span>Số điện thoại *</span><input value={values.phone} maxLength={30} inputMode="tel" autoComplete="tel" onChange={(e) => update("phone", e.target.value)} /></label>

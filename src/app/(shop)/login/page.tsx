@@ -15,6 +15,7 @@ const errors: Record<string, string> = {
 
 const messages: Record<string, string> = {
   confirm_email: "Đăng ký thành công. Hãy kiểm tra email và bấm liên kết xác nhận trước khi đăng nhập.",
+  checkout_login_required: "Cửa hàng đang yêu cầu đăng nhập trước khi đặt hàng. Sau khi đăng nhập bạn sẽ được đưa trở lại checkout.",
 };
 
 export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string; message?: string; next?: string }> }) {
@@ -25,9 +26,9 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   return (
     <div className="container-app customer-auth-wrap">
       <section className="auth-card customer-auth-card">
-        <span className="route-chip">Customer Auth • V0.2.0</span>
+        <span className="route-chip">Customer Account • V0.8.0</span>
         <h1>Đăng nhập</h1>
-        <p>Đăng nhập để quản lý hồ sơ và dùng các tính năng đồng bộ theo tài khoản. Bạn vẫn có thể xem sản phẩm mà không cần đăng nhập.</p>
+        <p>Đăng nhập để quản lý hồ sơ, địa chỉ mặc định và lịch sử đơn đồng bộ theo tài khoản. Bạn vẫn có thể xem sản phẩm mà không cần đăng nhập.</p>
 
         {!isSupabaseConfigured() && <div className="auth-message info">Chưa cấu hình Supabase. Hãy hoàn tất `.env.local` và migration trước.</div>}
         {params.error && <div className="auth-message error">{errors[params.error] ?? "Không thể đăng nhập."}</div>}
