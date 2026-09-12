@@ -39,7 +39,7 @@ export default async function EditProductPage({ params, searchParams }: { params
     <>
       <div className="admin-page-head">
         <div><h1>Sửa sản phẩm</h1><p>{product.name}</p></div>
-        <div className="admin-head-actions"><Link className="admin-small-button" href={`/product/${product.slug}`} target="_blank">Xem public ↗</Link><Link className="admin-small-button subtle" href="/admin/products">← Danh sách</Link></div>
+        <div className="admin-head-actions"><Link className="admin-small-button" href={`/product/${product.slug}`} target="_blank" rel="noopener noreferrer">Xem public ↗</Link><Link className="admin-small-button subtle" href="/admin/products">← Danh sách</Link></div>
       </div>
 
       {qs.error && <div className="auth-message error catalog-admin-message">{errors[qs.error] ?? "Có lỗi xảy ra."}</div>}

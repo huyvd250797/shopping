@@ -9,7 +9,7 @@ export default async function AdminDashboardPage() {
   return (
     <>
       <div className="admin-page-head">
-        <div><h1>Dashboard</h1><p>V0.8.0 hoàn thiện Customer Account: hồ sơ + địa chỉ mặc định, lịch sử đơn đồng bộ và cấu hình Guest Checkout.</p></div>
+        <div><h1>Dashboard</h1><p>V0.9.0 Hardening: tăng cường bảo mật, error states, chống tạo đơn trùng, hiệu năng, SEO và accessibility trước Release Candidate.</p></div>
         <div className="admin-head-actions"><Link className="admin-primary-button" href="/admin/orders">Xử lý đơn</Link><Link className="admin-small-button" href="/admin/products/new">+ Thêm sản phẩm</Link></div>
       </div>
       <section className="kpi-grid">
@@ -31,11 +31,12 @@ export default async function AdminDashboardPage() {
             <tr><td>Order Admin</td><td>V0.6.0</td><td><span className="status-dot">Ready</span></td></tr>
             <tr><td>Affiliate & Hybrid</td><td>V0.7.0</td><td><span className="status-dot">Ready</span></td></tr>
             <tr><td>Customer Account</td><td>V0.8.0</td><td><span className="status-dot">Ready</span></td></tr>
-            <tr><td>Hardening</td><td>V0.9.0</td><td>Next</td></tr>
+            <tr><td>Hardening</td><td>V0.9.0</td><td><span className="status-dot">Ready</span></td></tr>
+            <tr><td>Production Ready</td><td>V1.0.0</td><td>Next</td></tr>
           </tbody>
         </table>
       </section>
-      <section className="panel"><h2>Vận hành nhanh</h2><p>{orders.cancelledCount} đơn đã hủy • {banners.length} banner đã cấu hình. Affiliate có {affiliate.clicksToday} click hôm nay và {affiliate.uniqueVisitors} visitor trong 30 ngày. Customer Account đã sẵn sàng; bước tiếp theo là V0.9.0 Hardening.</p></section>
+      <section className="panel"><h2>Vận hành nhanh</h2><p>{orders.cancelledCount} đơn đã hủy • {banners.length} banner đã cấu hình. Affiliate có {affiliate.clicksToday} click hôm nay và {affiliate.uniqueVisitors} visitor trong 30 ngày. Hardening đã hoàn tất; bước tiếp theo là V1.0.0 Production Ready với production env, logging/backup và final QA.</p></section>
     </>
   );
 }

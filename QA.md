@@ -1,34 +1,35 @@
-# QA — V0.8.0 Customer Account
+# QA — V0.9.0 Hardening
 
-## Functional
-- [x] Customer profile supports default shipping address.
-- [x] Logged-in checkout pre-fills profile/address.
-- [x] My Orders reads account orders from database by `user_id`.
-- [x] My Orders supports status filter + pagination.
-- [x] Customer order detail shows item snapshots, totals, address snapshot and status timeline.
-- [x] Recent guest orders can be securely claimed from browser history with access token.
-- [x] Admin can enable/disable guest checkout at `/admin/settings`.
+## Automated/static verification completed
+- [x] `npm run qa:hardening`: 22 checks PASS, 0 FAIL.
+- [x] TypeScript/TSX transpile syntax parser: 99 files, 0 syntax diagnostics.
+- [x] Internal `@/` import resolver: 0 missing imports.
+- [x] ZIP/source contains migration 009, robots, sitemap, root/global/Admin error boundaries and hardening test plan.
 
 ## Security
-- [x] Existing RLS keeps customer orders scoped to the current user.
-- [x] Profile RPC does not expose role/email mutation.
-- [x] Guest-order claim requires authentication + random access token.
-- [x] No auto-link by phone/email.
-- [x] Admin setting mutation requires Admin session and creates audit log.
+- [x] Security response headers configured.
+- [x] Same-origin redirect validation hardened.
+- [x] SECURITY DEFINER helper `search_path` hardened in migration 009.
+- [x] Runtime CREATE on `public` schema revoked.
+- [x] Private/Admin routes excluded from indexing.
+- [x] External Admin `_blank` links use `noopener noreferrer`.
 
-## Regression
-- [x] Direct Checkout still recalculates price on server.
-- [x] Affiliate/Hybrid outbound flow remains unchanged.
-- [x] Order Admin workflow remains unchanged.
-- [x] V0.7.1 affiliate redirect narrowing is preserved.
+## Duplicate prevention
+- [x] Existing DB unique `checkout_request_id` preserved/reasserted.
+- [x] Existing DB advisory lock/idempotent RPC remains unchanged.
+- [x] Client submit lock added.
+- [x] Network exception message explicitly tells user retry is safe.
 
-## Packaging verification
-- Static source checks are run before packaging.
-- Run migration 008 before deploying source to production.
+## Error / performance / SEO / accessibility
+- [x] Root + global + Admin error states.
+- [x] Public data query failures are surfaced instead of silently becoming empty arrays.
+- [x] Customer-order/catalog performance indexes included.
+- [x] Request memoization added for repeated public slug/category reads.
+- [x] robots/sitemap/canonical/OpenGraph/noindex rules included.
+- [x] skip links, focus-visible, reduced motion and mobile input sizing included.
 
-## Verification performed in packaging environment
-- TypeScript/TSX transpile parser: **84 files, 0 syntax diagnostics**.
-- Internal `@/` import resolver: **0 missing imports**.
-- Page routes detected: **26**.
-- Global TypeScript semantic check was compared against the received V0.7.x baseline without installed project dependencies: **no new non-dependency diagnostics introduced**.
-- `npm install --no-audit --no-fund` was attempted, but the package registry did not respond before the environment timeout; therefore a full dependency-backed `npm run build` is **not claimed as PASS** in this package.
+## Build environment note
+- `npm install --no-audit --no-fund` was attempted in the packaging environment but the package registry did not respond before timeout.
+- Therefore dependency-backed `npm run typecheck`, `npm run lint` and `npm run build` are **not claimed as PASS** here. Run all three in CI/Vercel/local with installed dependencies before promoting to V1.0.0.
+
+See `HARDENING_TEST_PLAN.md` for end-to-end Release Candidate scenarios.

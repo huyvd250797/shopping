@@ -1044,3 +1044,40 @@ button { cursor: pointer; }
   .customer-order-item-image { width: 48px; height: 48px; }
   .customer-order-item > strong { grid-column: 2; }
 }
+
+
+/* V0.9.0 — Hardening */
+.skip-link {
+  position: fixed;
+  left: 12px;
+  top: 10px;
+  z-index: 9999;
+  transform: translateY(-160%);
+  padding: 10px 14px;
+  border-radius: 9px;
+  background: var(--ink-950);
+  color: #fff;
+  font-weight: 800;
+  box-shadow: var(--shadow-md);
+}
+.skip-link:focus { transform: translateY(0); }
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid rgba(245, 106, 43, .42);
+  outline-offset: 2px;
+}
+button:disabled, [aria-disabled="true"] { cursor: not-allowed; }
+.hardening-error-page { min-height: 60vh; display: grid; place-items: center; padding-block: 56px; }
+.hardening-error-card { width: min(640px, 100%); padding: 28px; border: 1px solid var(--line); border-radius: var(--radius-lg); background: #fff; box-shadow: var(--shadow-md); }
+.hardening-error-card h1 { margin: 12px 0 8px; }
+.hardening-error-card p { color: var(--ink-700); line-height: 1.6; }
+.hardening-error-card button { min-height: 44px; border: 0; border-radius: 10px; padding: 0 18px; background: var(--brand-500); color: #fff; font-weight: 800; }
+.hardening-admin-error { max-width: 720px; }
+.hardening-loading { min-height: 220px; display: flex; align-items: center; justify-content: center; gap: 12px; color: var(--ink-500); font-size: 13px; font-weight: 700; }
+.hardening-spinner { width: 22px; height: 22px; border: 3px solid var(--line); border-top-color: var(--brand-500); border-radius: 50%; animation: hardening-spin .8s linear infinite; }
+@keyframes hardening-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+}
+@media (max-width: 760px) {
+  input:not([type="checkbox"]):not([type="radio"]), select, textarea { font-size: 16px !important; }
+}

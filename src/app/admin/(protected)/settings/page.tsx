@@ -14,7 +14,7 @@ export default async function AdminSettingsPage({ searchParams }: { searchParams
   return (
     <>
       <div className="admin-page-head">
-        <div><h1>Cấu hình website</h1><p>V0.8.0 • Điều khiển chính sách Guest Checkout trực tiếp từ Admin.</p></div>
+        <div><h1>Cấu hình website</h1><p>V0.9.0 • Chính sách Guest Checkout cùng các guard vận hành đã được harden trước Release Candidate.</p></div>
         <span className="route-chip">Customer Account</span>
       </div>
 

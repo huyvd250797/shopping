@@ -1,5 +1,36 @@
 # Changelog
 
+## V0.9.0 — Hardening
+
+### Added
+- Global/root/Admin error boundaries and Admin loading state with retry/recovery UX.
+- Security response headers: CSP baseline, nosniff, frame deny, strict referrer policy, permissions policy and HSTS.
+- `robots.txt` + dynamic `sitemap.xml`; Product/Category canonical + OpenGraph metadata; private/search routes noindex.
+- Keyboard skip links, focus-visible styling, reduced-motion support and mobile 16px form controls.
+- Request-scoped cache for public category/product slug lookups.
+- Hardening migration `202609120009_hardening.sql` with security-definer/search_path fixes and query indexes.
+- Dependency-free `npm run qa:hardening` source guard and `HARDENING_TEST_PLAN.md`.
+
+### Changed
+- Public catalog/home query failures now surface through error boundaries instead of silently looking like empty data.
+- Admin dashboard marks V0.9.0 Ready and V1.0.0 Production Ready as the next roadmap step.
+- Version metadata normalized to V0.9.0.
+
+### Security
+- Internal post-login redirect helper now validates same-origin URL semantics and rejects backslash/network-path escapes.
+- Checkout adds a client-side submit lock in addition to the existing database idempotency key.
+- Existing `checkout_request_id` unique index is reasserted by migration 009.
+- `public.is_admin()` and `public.handle_new_user()` now use an empty `search_path` with fully qualified tables.
+- Runtime roles lose schema CREATE privileges in `public`.
+- Existing Admin links opened in a new tab now use `noopener noreferrer`.
+
+### Performance
+- Add indexes for `orders(user_id, created_at)`, `orders(user_id, status, created_at)`, active catalog category/sort and active price paths.
+- Request memoization avoids duplicate category/product slug reads within one render request.
+
+### Database
+- Add migration `202609120009_hardening.sql`.
+
 ## V0.8.0 — Customer Account
 
 ### Added

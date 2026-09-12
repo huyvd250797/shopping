@@ -1,8 +1,11 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { loginAdmin } from "./actions";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { VersionBadge } from "@/components/version-badge";
 import { siteConfig } from "@/config/site";
+
+export const metadata: Metadata = { robots: { index: false, follow: false, nocache: true } };
 
 const errors: Record<string, string> = {
   missing_fields: "Vui lòng nhập email và mật khẩu.",

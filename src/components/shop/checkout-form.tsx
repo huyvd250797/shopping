@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { submitDirectOrder } from "@/app/(shop)/checkout/[product]/actions";
 import { formatVnd } from "@/lib/catalog/format";
@@ -69,6 +69,7 @@ export function CheckoutForm({ product, defaults, requireLogin, isAuthenticated 
   const [step, setStep] = useState<"form" | "review">("form");
   const [error, setError] = useState("");
   const [hydrated, setHydrated] = useState(false);
+  const submitLockRef = useRef(false);
   const [values, setValues] = useState<CheckoutFormValues>({
     quantity: 1,
     customer_name: defaults.customerName,
@@ -140,6 +141,7 @@ export function CheckoutForm({ product, defaults, requireLogin, isAuthenticated 
   }
 
   function submit() {
+    if (submitLockRef.current) return;
     const message = validateClient();
     if (message) {
       setError(message);
@@ -147,23 +149,30 @@ export function CheckoutForm({ product, defaults, requireLogin, isAuthenticated 
       return;
     }
 
+    submitLockRef.current = true;
     startTransition(async () => {
-      const result = await submitDirectOrder(product.id, values);
-      if (!result.ok) {
-        setError(result.message);
-        return;
-      }
+      try {
+        const result = await submitDirectOrder(product.id, values);
+        if (!result.ok) {
+          submitLockRef.current = false;
+          setError(result.message);
+          return;
+        }
 
-      saveRecentOrder({
-        orderCode: result.order.orderCode,
-        accessToken: result.order.accessToken,
-        createdAt: result.order.createdAt,
-        productName: product.name,
-        total: result.order.total,
-      });
-      try { localStorage.removeItem(DRAFT_KEY); } catch { /* browser storage may be unavailable */ }
-      router.push(`/order/success/${encodeURIComponent(result.order.orderCode)}?token=${encodeURIComponent(result.order.accessToken)}`);
-      router.refresh();
+        saveRecentOrder({
+          orderCode: result.order.orderCode,
+          accessToken: result.order.accessToken,
+          createdAt: result.order.createdAt,
+          productName: product.name,
+          total: result.order.total,
+        });
+        try { localStorage.removeItem(DRAFT_KEY); } catch { /* browser storage may be unavailable */ }
+        router.push(`/order/success/${encodeURIComponent(result.order.orderCode)}?token=${encodeURIComponent(result.order.accessToken)}`);
+        router.refresh();
+      } catch {
+        submitLockRef.current = false;
+        setError("Kết nối bị gián đoạn. Bạn có thể bấm xác nhận lại; mã checkout hiện tại vẫn ngăn tạo đơn trùng.");
+      }
     });
   }
 
@@ -186,7 +195,7 @@ export function CheckoutForm({ product, defaults, requireLogin, isAuthenticated 
         </div>
       </aside>
 
-      <section className="checkout-card">
+      <section className="checkout-card" aria-busy={isPending}>
         <div className="checkout-steps" aria-label="Tiến trình đặt hàng">
           <span className={step === "form" ? "active" : "done"}>1. Thông tin</span>
           <span className={step === "review" ? "active" : ""}>2. Xác nhận</span>
@@ -207,7 +216,7 @@ export function CheckoutForm({ product, defaults, requireLogin, isAuthenticated 
               <label className="checkout-field checkout-field-full"><span>Địa chỉ chi tiết *</span><input value={values.address_line} maxLength={250} autoComplete="street-address" onChange={(e) => update("address_line", e.target.value)} placeholder="Số nhà, tên đường, tòa nhà..." /></label>
               <label className="checkout-field checkout-field-full"><span>Ghi chú <em>không bắt buộc</em></span><textarea value={values.note} maxLength={500} rows={4} onChange={(e) => update("note", e.target.value)} placeholder="Ví dụ: giao giờ hành chính" /></label>
             </div>
-            {error && <div className="checkout-error">{error}</div>}
+            {error && <div className="checkout-error" role="alert" aria-live="polite">{error}</div>}
             <div className="checkout-total-box"><span>Tạm tính</span><strong>{formatVnd(subtotal)}</strong><small>Phí vận chuyển: {formatVnd(0)} • Tổng cuối cùng được server tính lại khi tạo đơn.</small></div>
             <button className="checkout-primary-button" type="button" onClick={goReview}>Tiếp tục xác nhận</button>
           </>
@@ -223,7 +232,7 @@ export function CheckoutForm({ product, defaults, requireLogin, isAuthenticated 
               {values.note && <div className="checkout-review-full"><span>Ghi chú</span><strong>{values.note}</strong></div>}
             </div>
             <div className="checkout-total-box checkout-total-final"><span>Tổng dự kiến</span><strong>{formatVnd(subtotal)}</strong><small>Hệ thống sẽ đọc lại giá hiện tại từ database trước khi tạo đơn.</small></div>
-            {error && <div className="checkout-error">{error}</div>}
+            {error && <div className="checkout-error" role="alert" aria-live="polite">{error}</div>}
             <div className="checkout-review-actions">
               <button className="checkout-secondary-button" type="button" disabled={isPending} onClick={() => setStep("form")}>← Sửa thông tin</button>
               <button className="checkout-primary-button checkout-submit-fit" type="button" disabled={isPending || !hydrated} onClick={submit}>{isPending ? "Đang tạo đơn..." : "Xác nhận đặt hàng"}</button>

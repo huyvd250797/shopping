@@ -1,36 +1,55 @@
-# MyShop V0.8.0 — Customer Account
+# MyShop V0.9.0 — Hardening
 
 Production hiện tại: **https://bobebunne.vercel.app**
 
-MyShop là web bán hàng hybrid gồm **Direct Order + Affiliate**. V0.8.0 hoàn thiện roadmap **Customer Account**: hồ sơ + địa chỉ mặc định, lịch sử đơn theo tài khoản, đồng bộ an toàn đơn guest từ trình duyệt và cấu hình Guest Checkout trong Admin.
+MyShop là web bán hàng hybrid **Direct Order + Affiliate**. V0.9.0 bám đúng roadmap Hardening trước Release Candidate: tập trung bảo mật, error/recovery states, chống tạo đơn trùng, hiệu năng, SEO và accessibility; không thay đổi business flow đã hoàn thiện ở V0.8.0.
 
-## V0.8.0 có gì mới?
+## V0.9.0 có gì mới?
 
-- `/account`:
-  - cập nhật họ tên, số điện thoại;
-  - lưu địa chỉ giao hàng mặc định: Tỉnh/Thành phố, Quận/Huyện, Phường/Xã, địa chỉ chi tiết;
-  - KPI tổng đơn / đang xử lý / hoàn tất.
-- `/account/orders`:
-  - danh sách đơn theo `user_id`;
-  - lọc theo trạng thái;
-  - phân trang;
-  - đồng bộ các đơn guest gần đây còn `order_code + access_token` trên thiết bị.
-- `/account/orders/[id]`:
-  - chi tiết sản phẩm;
-  - snapshot thông tin nhận hàng;
-  - tổng tiền;
-  - timeline trạng thái.
-- Direct Checkout tự điền hồ sơ + địa chỉ mặc định khi customer đã đăng nhập.
-- `/admin/settings` cho phép bật/tắt **Require login for checkout**.
-- Không tự liên kết đơn guest chỉ bằng số điện thoại/email; phải có access token ngẫu nhiên của chính đơn đó.
+- **Security**
+  - response security headers + CSP baseline;
+  - chặn open redirect sau login/auth callback bằng same-origin URL guard;
+  - harden `SECURITY DEFINER` helper với `search_path=''`;
+  - revoke quyền CREATE schema `public` cho runtime roles;
+  - private/Admin routes `noindex`.
+- **Duplicate prevention**
+  - giữ database idempotency bằng `checkout_request_id`;
+  - thêm client submit lock để chặn double-click trước khi transition state cập nhật;
+  - retry cùng request id vẫn trả về cùng order.
+- **Error recovery**
+  - root/global/Admin error boundaries;
+  - lỗi public catalog/home không còn bị nuốt thành “0 dữ liệu”;
+  - checkout giữ form và cho retry an toàn khi mạng gián đoạn.
+- **Performance**
+  - composite indexes cho My Orders / filter status / catalog category-price;
+  - request memoization cho category và product slug lookups.
+- **SEO**
+  - `/robots.txt`, `/sitemap.xml`;
+  - canonical + OpenGraph cho Product/Category;
+  - Search/filter pages `noindex,follow`.
+- **Accessibility / Mobile**
+  - skip link, focus ring, reduced motion;
+  - error/loading semantics;
+  - form controls 16px trên mobile để tránh Safari auto-zoom.
 
 ## Database migration
 
-Nếu database production đang ở migration 007, chạy:
+Nếu production đang ở V0.8.0 / migration 008, chạy:
 
-`supabase/migrations/202609120008_customer_account.sql`
+`supabase/migrations/202609120009_hardening.sql`
 
-Migration 008 bổ sung địa chỉ mặc định vào `profiles`, RPC `update_my_customer_profile(...)` và RPC `claim_recent_order(...)`.
+Migration 009 không đổi business data; chủ yếu harden security helper, quyền schema và thêm indexes.
+
+## QA nhanh
+
+```bash
+npm run qa:hardening
+npm run typecheck
+npm run lint
+npm run build
+```
+
+`qa:hardening` không cần dependency ngoài Node và kiểm tra các guard quan trọng của V0.9.0. Full test scenario nằm trong `HARDENING_TEST_PLAN.md`.
 
 ## Admin routes
 
@@ -43,6 +62,6 @@ Migration 008 bổ sung địa chỉ mặc định vào `profiles`, RPC `update_
 
 ## Version history
 
-V0.1.0 Foundation → V0.2.0 Auth & Roles → V0.3.0 Catalog → V0.4.0 Home/Search → V0.5.0 Direct Checkout → V0.6.0 Order Admin → V0.6.1 Type Fix → V0.7.0 Affiliate & Hybrid → V0.7.1 Affiliate Redirect Type Fix → **V0.8.0 Customer Account**.
+V0.1.0 Foundation → V0.2.0 Auth & Roles → V0.3.0 Catalog → V0.4.0 Home/Search → V0.5.0 Direct Checkout → V0.6.0 Order Admin → V0.6.1 Type Fix → V0.7.0 Affiliate & Hybrid → V0.7.1 Affiliate Redirect Type Fix → V0.8.0 Customer Account → **V0.9.0 Hardening**.
 
-Next roadmap: **V0.9.0 — Hardening**.
+Next roadmap: **V1.0.0 — Production Ready**.

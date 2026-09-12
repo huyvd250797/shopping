@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 import { HomeBanners } from "@/components/shop/home-banners";
@@ -5,6 +6,8 @@ import { ProductCard } from "@/components/shop/product-card";
 import { getPublicCategories } from "@/features/catalog/queries";
 import { getProductsForHomeSection, getPublicBanners, getPublicHomeSections } from "@/features/home/queries";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
+
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 export default async function HomePage() {
   const configured = isSupabaseConfigured();

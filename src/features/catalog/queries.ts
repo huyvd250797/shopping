@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import type { CatalogProduct, Category, ProductImage, PurchaseMode } from "@/types/catalog";
@@ -36,16 +37,17 @@ function sanitizeSearch(value: string) {
   return value.trim().replace(/[(),.%]/g, " ").replace(/["'`\\]/g, " ").replace(/\s+/g, " ").slice(0, 120);
 }
 
-export async function getPublicCategories(): Promise<Category[]> {
+async function queryPublicCategories(): Promise<Category[]> {
   if (!isSupabaseConfigured()) return [];
   const supabase = await createClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("categories")
     .select("id,name,slug,icon_url,sort_order,is_active")
     .eq("is_active", true)
     .order("sort_order", { ascending: true })
     .order("name", { ascending: true });
 
+  if (error) throw new Error("PUBLIC_CATEGORIES_QUERY_FAILED");
   return (data ?? []) as Category[];
 }
 
@@ -88,7 +90,8 @@ export async function getPublicProducts(options?: {
     query = query.limit(options.limit);
   }
 
-  const { data } = await query;
+  const { data, error } = await query;
+  if (error) throw new Error("PUBLIC_PRODUCTS_QUERY_FAILED");
   return (data ?? []).map((row) => normalizeProduct(row as Record<string, unknown>));
 }
 
@@ -129,7 +132,8 @@ export async function searchPublicProducts(options: {
   else query = query.order("sort_order", { ascending: true }).order("created_at", { ascending: false });
   query = query.range(offset, offset + pageSize - 1);
 
-  const { data, count } = await query;
+  const { data, count, error } = await query;
+  if (error) throw new Error("PUBLIC_PRODUCT_SEARCH_FAILED");
   return {
     products: (data ?? []).map((row) => normalizeProduct(row as Record<string, unknown>)),
     total: count ?? 0,
@@ -148,10 +152,10 @@ export async function getBestPriceProducts(limit = 10): Promise<CatalogProduct[]
     .slice(0, limit);
 }
 
-export async function getPublicProductBySlug(slug: string): Promise<CatalogProduct | null> {
+async function queryPublicProductBySlug(slug: string): Promise<CatalogProduct | null> {
   if (!isSupabaseConfigured()) return null;
   const supabase = await createClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("products")
     .select(productSelect)
     .eq("slug", slug)
@@ -159,18 +163,53 @@ export async function getPublicProductBySlug(slug: string): Promise<CatalogProdu
     .is("deleted_at", null)
     .maybeSingle();
 
+  if (error) throw new Error("PUBLIC_PRODUCT_DETAIL_QUERY_FAILED");
   return data ? normalizeProduct(data as Record<string, unknown>) : null;
 }
 
-export async function getPublicCategoryBySlug(slug: string): Promise<Category | null> {
+async function queryPublicCategoryBySlug(slug: string): Promise<Category | null> {
   if (!isSupabaseConfigured()) return null;
   const supabase = await createClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("categories")
     .select("id,name,slug,icon_url,sort_order,is_active")
     .eq("slug", slug)
     .eq("is_active", true)
     .maybeSingle();
 
+  if (error) throw new Error("PUBLIC_CATEGORY_DETAIL_QUERY_FAILED");
   return (data as Category | null) ?? null;
+}
+
+export const getPublicCategories = cache(queryPublicCategories);
+export const getPublicProductBySlug = cache(queryPublicProductBySlug);
+export const getPublicCategoryBySlug = cache(queryPublicCategoryBySlug);
+
+export async function getPublicSitemapEntries(): Promise<{
+  products: Array<{ slug: string; updated_at: string | null }>;
+  categories: Array<{ slug: string; updated_at: string | null }>;
+}> {
+  if (!isSupabaseConfigured()) return { products: [], categories: [] };
+  const supabase = await createClient();
+  const [productResult, categoryResult] = await Promise.all([
+    supabase
+      .from("products")
+      .select("slug,updated_at")
+      .eq("status", "active")
+      .is("deleted_at", null)
+      .order("updated_at", { ascending: false })
+      .limit(1000),
+    supabase
+      .from("categories")
+      .select("slug,updated_at")
+      .eq("is_active", true)
+      .order("updated_at", { ascending: false })
+      .limit(1000),
+  ]);
+
+  if (productResult.error || categoryResult.error) throw new Error("PUBLIC_SITEMAP_QUERY_FAILED");
+  return {
+    products: (productResult.data ?? []).map((row) => ({ slug: String(row.slug), updated_at: row.updated_at ? String(row.updated_at) : null })),
+    categories: (categoryResult.data ?? []).map((row) => ({ slug: String(row.slug), updated_at: row.updated_at ? String(row.updated_at) : null })),
+  };
 }

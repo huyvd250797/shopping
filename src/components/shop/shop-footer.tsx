@@ -6,7 +6,7 @@ export function ShopFooter() {
   return (
     <footer className="shop-footer">
       <div className="container-app footer-inner">
-        <span>© 2026 {siteConfig.name} • Blueprint foundation</span>
+        <span>© 2026 {siteConfig.name} • Hybrid commerce</span>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <Link href="/admin/login">Admin</Link>
           <VersionBadge />

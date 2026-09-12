@@ -1,7 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ProductCard } from "@/components/shop/product-card";
 import { getPublicCategories, searchPublicProducts, type CatalogSort } from "@/features/catalog/queries";
 import type { PurchaseMode } from "@/types/catalog";
+
+export const metadata: Metadata = {
+  title: "Tìm kiếm sản phẩm",
+  robots: { index: false, follow: true },
+};
 
 type SearchParams = { q?: string; category?: string; min?: string; max?: string; mode?: string; sort?: string; page?: string };
 

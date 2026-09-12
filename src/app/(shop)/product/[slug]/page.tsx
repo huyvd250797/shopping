@@ -6,14 +6,25 @@ import { ProductCard } from "@/components/shop/product-card";
 import { PurchaseCta } from "@/components/shop/purchase-cta";
 import { getPublicProductBySlug, getPublicProducts } from "@/features/catalog/queries";
 import { formatVnd, purchaseModeLabel } from "@/lib/catalog/format";
+import { getSiteUrl } from "@/lib/supabase/env";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const product = await getPublicProductBySlug(slug);
   if (!product) return { title: "Sản phẩm không tồn tại" };
+  const canonical = `${getSiteUrl()}/product/${encodeURIComponent(product.slug)}`;
+  const description = product.meta_description || product.short_description || undefined;
   return {
     title: product.meta_title || product.name,
-    description: product.meta_description || product.short_description || undefined,
+    description,
+    alternates: { canonical },
+    openGraph: {
+      type: "website",
+      title: product.meta_title || product.name,
+      description,
+      url: canonical,
+      images: product.thumbnail_url ? [{ url: product.thumbnail_url, alt: product.name }] : undefined,
+    },
   };
 }
 

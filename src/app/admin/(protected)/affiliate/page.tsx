@@ -62,7 +62,7 @@ export default async function AdminAffiliatePage({ searchParams }: { searchParam
             <thead><tr><th>Thời gian</th><th>Sản phẩm</th><th>Loại khách</th><th>Nguồn</th><th>Đối tác</th></tr></thead>
             <tbody>{recent.map((click) => <tr key={click.id}>
               <td>{dateTime(click.createdAt)}</td>
-              <td><Link className="admin-table-link" href={`/product/${click.productSlug}`} target="_blank">{click.productName}</Link></td>
+              <td><Link className="admin-table-link" href={`/product/${click.productSlug}`} target="_blank" rel="noopener noreferrer">{click.productName}</Link></td>
               <td>{click.userId ? "Customer" : "Guest"}</td><td>{click.sourcePath || "—"}</td><td>{hostOf(click.targetUrl)}</td>
             </tr>)}</tbody>
           </table></div>

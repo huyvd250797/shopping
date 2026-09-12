@@ -1,22 +1,20 @@
-# Deploy MyShop V0.8.0 — Customer Account
+# Deploy MyShop V0.9.0 — Hardening
 
 Production domain: **https://bobebunne.vercel.app**
 
-## 1. Nâng database từ V0.7.x
+## 1. Nâng database từ V0.8.0
 
 Trong **Supabase → SQL Editor**, chạy toàn bộ file:
 
-`supabase/migrations/202609120008_customer_account.sql`
+`supabase/migrations/202609120009_hardening.sql`
 
-Chỉ chạy migration 008 khi database production đã có migration 001 → 007.
+Chỉ chạy migration 009 sau khi database đã có 001 → 008.
 
-Migration 008 bổ sung:
-- `profiles.province`
-- `profiles.district`
-- `profiles.ward`
-- `profiles.address_line`
-- RPC `update_my_customer_profile(...)`
-- RPC `claim_recent_order(...)`
+Migration 009:
+- revoke runtime CREATE trên schema `public`;
+- harden `is_admin()` và `handle_new_user()` bằng `search_path=''`;
+- thêm indexes cho My Orders và catalog filter/sort;
+- reassert unique index `checkout_request_id` để chống duplicate order.
 
 ## 2. Environment Variables trên Vercel
 
@@ -27,26 +25,33 @@ NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_xxxxxxxxx
 ```
 
-Không có biến môi trường mới bắt buộc cho V0.8.0.
+Không có biến môi trường mới bắt buộc cho V0.9.0.
 
-## 3. Deploy source
+## 3. Kiểm tra trước deploy
 
-Push source lên GitHub/Vercel theo quy trình hiện tại. Không cấu hình Output Directory thành `out`; để Vercel/Next.js dùng `.next` mặc định.
+```bash
+npm install
+npm run qa:hardening
+npm run typecheck
+npm run lint
+npm run build
+```
 
-## 4. Smoke test Customer Account
+## 4. Deploy source
 
-1. Đăng nhập customer → `/account`.
-2. Lưu họ tên, SĐT và địa chỉ mặc định.
-3. Mở Direct Checkout → các trường profile/address phải tự điền.
-4. Tạo đơn khi đang đăng nhập → đơn xuất hiện tại `/account/orders`.
-5. Mở chi tiết đơn → items, tổng tiền, địa chỉ snapshot và timeline phải đúng.
-6. Đăng xuất, tạo một guest order (nếu Guest Checkout bật), rồi đăng nhập lại cùng trình duyệt → `/account/orders` phải đồng bộ đơn guest bằng token trình duyệt.
-7. Vào `/admin/settings`, bật **Bắt buộc đăng nhập** → guest mở checkout phải bị chuyển sang Login rồi quay lại checkout.
-8. Tắt lại → guest checkout hoạt động bình thường.
+Push source lên GitHub/Vercel theo quy trình hiện tại. Không cấu hình Output Directory thành `out`; để Next.js/Vercel dùng `.next` mặc định.
 
-## 5. Security check
+## 5. Smoke test V0.9.0
 
-- Customer A không mở được `/account/orders/[id]` của Customer B.
-- Không có API/RPC nào claim đơn bằng số điện thoại/email đơn thuần.
-- `claim_recent_order` chỉ chạy cho authenticated user và yêu cầu đúng `order_code + access_token`.
-- Customer update profile không được phép sửa `role` hoặc `email`.
+1. Home, Search, Category, Product hoạt động bình thường.
+2. Đăng nhập customer/admin và kiểm tra redirect `next` chỉ đi nội bộ.
+3. Double-click Direct Checkout và retry sau timeout chỉ tạo 1 order.
+4. Ngắt network/Supabase test để xác nhận error state + Retry.
+5. Kiểm tra `/robots.txt`, `/sitemap.xml`, canonical product/category.
+6. Dùng keyboard Tab kiểm tra skip link/focus ring.
+7. Test mobile Safari/Chrome: input không auto-zoom bất thường.
+8. Admin Order/Affiliate/Customer Account regression test theo `HARDENING_TEST_PLAN.md`.
+
+## 6. Sau deploy
+
+Kiểm tra response headers production, error logs Vercel/Supabase và xác nhận không có blocker trước khi nâng **V1.0.0 Production Ready**.
