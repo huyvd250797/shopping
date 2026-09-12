@@ -1,8 +1,9 @@
--- MyShop V0.3.0 non-sensitive seed data.
+-- MyShop V1.0.0 non-sensitive seed data.
 -- Run after the foundation migration. Admin account itself is seeded by scripts/seed-admin.mjs.
 
 insert into public.site_settings (key, value, is_public)
 values
+  ('app_release', '"1.0.0"'::jsonb, true),
   ('shop_name', '"MyShop"'::jsonb, true),
   ('require_login_for_checkout', 'false'::jsonb, true),
   ('default_affiliate_button_label', '"Xem ưu đãi"'::jsonb, true),

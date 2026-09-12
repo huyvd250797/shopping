@@ -1,20 +1,31 @@
-# Deploy MyShop V0.9.0 — Hardening
+# Deploy MyShop V1.0.0 — Production Ready
 
-Production domain: **https://bobebunne.vercel.app**
+Production domain hiện tại: **https://bobebunne.vercel.app**
 
-## 1. Nâng database từ V0.8.0
+## 0. Tạo backup trước khi migration
+
+Khuyến nghị tạo backup database và verify file trước mọi production migration:
+
+```bash
+# local/CI only; cần SUPABASE_DB_URL + pg_dump/pg_restore
+npm run backup:db
+npm run backup:verify -- "backups/<backup-file>.dump"
+```
+
+Xem thêm `PRODUCTION_RUNBOOK.md`.
+
+## 1. Nâng database từ V0.9.0
 
 Trong **Supabase → SQL Editor**, chạy toàn bộ file:
 
-`supabase/migrations/202609120009_hardening.sql`
+`supabase/migrations/202609120010_production_ready.sql`
 
-Chỉ chạy migration 009 sau khi database đã có 001 → 008.
+Chỉ chạy migration 010 sau khi database đã có 001 → 009.
 
-Migration 009:
-- revoke runtime CREATE trên schema `public`;
-- harden `is_admin()` và `handle_new_user()` bằng `search_path=''`;
-- thêm indexes cho My Orders và catalog filter/sort;
-- reassert unique index `checkout_request_id` để chống duplicate order.
+Migration 010:
+- ghi public release marker `app_release = 1.0.0` cho health/readiness;
+- seed các setting nền nếu thiếu nhưng không ghi đè setting vận hành hiện tại;
+- thêm index newest-first cho audit log và affiliate click.
 
 ## 2. Environment Variables trên Vercel
 
@@ -25,33 +36,42 @@ NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_xxxxxxxxx
 ```
 
-Không có biến môi trường mới bắt buộc cho V0.9.0.
+`SUPABASE_SECRET_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_DB_URL` không được expose ra client. `SUPABASE_DB_URL` chỉ cần trên máy/CI chạy backup, không bắt buộc cho Vercel runtime.
 
-## 3. Kiểm tra trước deploy
+## 3. Final QA trước deploy
 
 ```bash
 npm install
 npm run qa:hardening
+npm run qa:production
 npm run typecheck
 npm run lint
 npm run build
 ```
 
+Không deploy nếu bất kỳ lệnh nào fail.
+
 ## 4. Deploy source
 
 Push source lên GitHub/Vercel theo quy trình hiện tại. Không cấu hình Output Directory thành `out`; để Next.js/Vercel dùng `.next` mặc định.
 
-## 5. Smoke test V0.9.0
+## 5. Smoke test sau deploy
 
-1. Home, Search, Category, Product hoạt động bình thường.
-2. Đăng nhập customer/admin và kiểm tra redirect `next` chỉ đi nội bộ.
-3. Double-click Direct Checkout và retry sau timeout chỉ tạo 1 order.
-4. Ngắt network/Supabase test để xác nhận error state + Retry.
-5. Kiểm tra `/robots.txt`, `/sitemap.xml`, canonical product/category.
-6. Dùng keyboard Tab kiểm tra skip link/focus ring.
-7. Test mobile Safari/Chrome: input không auto-zoom bất thường.
-8. Admin Order/Affiliate/Customer Account regression test theo `HARDENING_TEST_PLAN.md`.
+1. Mở `/api/health`: production phải trả HTTP 200, `status=ok`, `version=1.0.0`.
+2. Vào `/admin/system`: tất cả production checks phải PASS.
+3. Home, Search, Category, Product hoạt động.
+4. Đăng ký/login/logout/reset password customer; Admin login/guard đúng.
+5. Direct Checkout tạo đúng một order; double-click/retry không duplicate.
+6. Customer My Orders chỉ thấy đơn của chính mình.
+7. Admin chuyển status + internal note + audit log đúng.
+8. Affiliate redirect chạy đúng và click được tracking.
+9. `/robots.txt`, `/sitemap.xml`, canonical/OG đúng production URL.
+10. Kiểm tra Vercel logs có structured events nhưng không lộ PII/secret.
 
-## 6. Sau deploy
+## 6. Go-live
 
-Kiểm tra response headers production, error logs Vercel/Supabase và xác nhận không có blocker trước khi nâng **V1.0.0 Production Ready**.
+- Xác nhận backup gần nhất có thể đọc bằng `pg_restore --list`.
+- Xác nhận domain/HTTPS và Supabase Redirect URLs.
+- Xác nhận ít nhất một Admin thật, đổi/rotate bootstrap password.
+- Xác nhận sản phẩm/banner/settings production không còn dữ liệu test ngoài ý muốn.
+- Lưu thời điểm deploy và commit/tag release V1.0.0.

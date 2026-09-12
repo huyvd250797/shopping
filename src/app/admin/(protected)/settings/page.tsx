@@ -14,8 +14,8 @@ export default async function AdminSettingsPage({ searchParams }: { searchParams
   return (
     <>
       <div className="admin-page-head">
-        <div><h1>Cấu hình website</h1><p>V0.9.0 • Chính sách Guest Checkout cùng các guard vận hành đã được harden trước Release Candidate.</p></div>
-        <span className="route-chip">Customer Account</span>
+        <div><h1>Cấu hình website</h1><p>V1.0.0 • Chính sách Guest Checkout và cấu hình vận hành production.</p></div>
+        <span className="route-chip">Production Settings</span>
       </div>
 
       {params.message === "checkout_setting_saved" && <div className="admin-settings-message success">Đã lưu chính sách checkout.</div>}
@@ -41,7 +41,7 @@ export default async function AdminSettingsPage({ searchParams }: { searchParams
       </section>
 
       <section className="panel admin-settings-section muted">
-        <h2>Nguyên tắc đồng bộ đơn V0.8.0</h2>
+        <h2>Nguyên tắc đồng bộ đơn</h2>
         <p>Đơn tạo khi customer đang đăng nhập được lưu `user_id` ngay lúc checkout. Đơn guest chỉ được gắn vào tài khoản khi trình duyệt còn giữ đúng `order_code + access_token`; không tự dò theo số điện thoại/email.</p>
       </section>
     </>

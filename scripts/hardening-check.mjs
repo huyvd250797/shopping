@@ -17,8 +17,9 @@ function exists(rel) {
 }
 
 const pkg = JSON.parse(read("package.json"));
-expect("package version is 0.9.0", pkg.version === "0.9.0");
-expect("site version label is V0.9.0", read("src/config/site.ts").includes("V0.9.0 • Hardening"));
+expect("package version is V0.9.0 or later", ["0.9.0", "1.0.0"].includes(pkg.version));
+const siteVersion = read("src/config/site.ts");
+expect("site version label is Hardening or later", siteVersion.includes("V0.9.0 • Hardening") || siteVersion.includes("V1.0.0 • Production Ready"));
 
 const nextConfig = read("next.config.ts");
 for (const header of ["Content-Security-Policy", "X-Content-Type-Options", "X-Frame-Options", "Referrer-Policy", "Permissions-Policy", "Strict-Transport-Security"]) {

@@ -1,35 +1,32 @@
-# QA — V0.9.0 Hardening
+# QA — MyShop V1.0.0 Production Ready
 
-## Automated/static verification completed
-- [x] `npm run qa:hardening`: 22 checks PASS, 0 FAIL.
-- [x] TypeScript/TSX transpile syntax parser: 99 files, 0 syntax diagnostics.
-- [x] Internal `@/` import resolver: 0 missing imports.
-- [x] ZIP/source contains migration 009, robots, sitemap, root/global/Admin error boundaries and hardening test plan.
+## Kết quả kiểm tra khi đóng gói
 
-## Security
-- [x] Security response headers configured.
-- [x] Same-origin redirect validation hardened.
-- [x] SECURITY DEFINER helper `search_path` hardened in migration 009.
-- [x] Runtime CREATE on `public` schema revoked.
-- [x] Private/Admin routes excluded from indexing.
-- [x] External Admin `_blank` links use `noopener noreferrer`.
+- `npm run qa:hardening`: **22 PASS / 0 FAIL**.
+- `npm run qa:production`: **22 PASS / 0 FAIL**.
+- TypeScript/TSX syntax scan bằng TypeScript parser: **102 files / 0 syntax errors**.
+- Internal `@/` import resolution scan: **102 files / 0 missing imports**.
+- `npm install --no-audit --no-fund`: môi trường đóng gói bị timeout nên **chưa xác nhận full `typecheck/lint/build` bằng dependency thực tế**.
 
-## Duplicate prevention
-- [x] Existing DB unique `checkout_request_id` preserved/reasserted.
-- [x] Existing DB advisory lock/idempotent RPC remains unchanged.
-- [x] Client submit lock added.
-- [x] Network exception message explicitly tells user retry is safe.
+Vì vậy trước production deploy vẫn bắt buộc chạy đầy đủ:
 
-## Error / performance / SEO / accessibility
-- [x] Root + global + Admin error states.
-- [x] Public data query failures are surfaced instead of silently becoming empty arrays.
-- [x] Customer-order/catalog performance indexes included.
-- [x] Request memoization added for repeated public slug/category reads.
-- [x] robots/sitemap/canonical/OpenGraph/noindex rules included.
-- [x] skip links, focus-visible, reduced motion and mobile input sizing included.
+```bash
+npm install
+npm run qa:hardening
+npm run qa:production
+npm run typecheck
+npm run lint
+npm run build
+```
 
-## Build environment note
-- `npm install --no-audit --no-fund` was attempted in the packaging environment but the package registry did not respond before timeout.
-- Therefore dependency-backed `npm run typecheck`, `npm run lint` and `npm run build` are **not claimed as PASS** here. Run all three in CI/Vercel/local with installed dependencies before promoting to V1.0.0.
+## Runtime production checks
 
-See `HARDENING_TEST_PLAN.md` for end-to-end Release Candidate scenarios.
+Sau deploy, `/api/health` và `/admin/system` là hai điểm kiểm tra app/database cùng phiên bản. Health chỉ trả key + boolean, không expose URL/key/error detail. Admin System page hiển thị chi tiết hơn nhưng nằm sau Admin guard.
+
+## Manual smoke test
+
+Dùng `PRODUCTION_QA_CHECKLIST.md` để kiểm tra Auth, Catalog, Direct Checkout, Customer Account, Order Admin, Affiliate, SEO, mobile/accessibility, backup và logs.
+
+## Backup
+
+`npm run backup:db` cần `SUPABASE_DB_URL` cùng `pg_dump`; `npm run backup:verify -- <file>` cần `pg_restore`. Backup catalog verification không thay thế restore drill trên staging.

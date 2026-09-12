@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import type { CheckoutFormValues, CheckoutSubmitResult } from "@/types/checkout";
+import { logger } from "@/lib/observability/logger";
 
 function fail(code: string, message: string): CheckoutSubmitResult {
   return { ok: false, code, message };
@@ -64,10 +65,16 @@ export async function submitDirectOrder(productId: string, input: CheckoutFormVa
   });
 
   if (error || !Array.isArray(data) || !data[0]) {
+    logger.error("checkout_create_order_failed", {
+      productId,
+      checkoutRequestId: input.checkout_request_id,
+      rpcErrorCode: error?.code || "missing_order_result",
+    });
     return fail("create_order_failed", mapRpcError(error?.message ?? ""));
   }
 
   const row = data[0];
+  logger.info("checkout_order_created", { productId, orderId: String(row.order_id), orderCode: String(row.order_code) });
   return {
     ok: true,
     order: {

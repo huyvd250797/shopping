@@ -1,22 +1,22 @@
-# Build Notes — V0.9.0
+# Build Notes — MyShop V1.0.0
 
-- Base source received: **MyShop V0.8.0 — Customer Account**.
-- Roadmap target: **V0.9.0 — Hardening**.
-- New database migration: `202609120009_hardening.sql`.
-- No new npm dependency added.
-- Production URL remains `https://bobebunne.vercel.app`.
+V1.0.0 là mốc Production Ready theo blueprint. Thay đổi chính nằm ở operational readiness, không tái thiết kế business flow đã ổn định từ V0.9.0.
 
-## Main changes
+## Source changes
 
-- Security headers + CSP baseline and hardened internal redirect validation.
-- Hardened `is_admin` / `handle_new_user` SECURITY DEFINER functions.
-- Database indexes for customer-order and catalog common query paths.
-- Root/Admin/public query error recovery states.
-- Client + DB duplicate-order safeguards.
-- robots/sitemap/canonical/OpenGraph/noindex rules.
-- Accessibility: skip links, focus-visible, reduced motion, mobile input sizing.
-- Added `npm run qa:hardening` and Release Candidate hardening test plan.
+- Version bump 1.0.0.
+- Health endpoint + Admin System Readiness.
+- Structured/redacted server logger.
+- Migration 010 release marker + operational indexes/defaults.
+- Production QA script.
+- Backup/verify scripts và production runbook.
 
-## Next roadmap
+## Required production order
 
-**V1.0.0 — Production Ready**: production environment review, domain/logging/backup, final QA, seed/settings verification and release sign-off.
+1. Backup database.
+2. Run migration 010.
+3. Configure production env/domain.
+4. Run all QA/build gates.
+5. Deploy V1.0.0.
+6. Verify `/api/health` + `/admin/system`.
+7. Smoke test theo `PRODUCTION_QA_CHECKLIST.md`.

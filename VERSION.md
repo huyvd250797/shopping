@@ -1,6 +1,6 @@
 # MyShop Version
 
-**Current:** V0.9.0 — Hardening
+**Current:** V1.0.0 — Production Ready
 
 ## Built versions
 - V0.1.0 — Foundation
@@ -14,6 +14,7 @@
 - V0.7.1 — Affiliate Redirect Type Fix
 - V0.8.0 — Customer Account
 - V0.9.0 — Hardening
+- V1.0.0 — Production Ready
 
 ## Next
-**V1.0.0 — Production Ready**
+Backlog sau V1.0 theo blueprint: **V1.1 — Multi-item Direct Cart + shipping fee logic**.

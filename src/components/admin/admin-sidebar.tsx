@@ -9,6 +9,7 @@ const items = [
   ["/admin/affiliate", "↗", "Affiliate"],
   ["/admin/banners", "▭", "Banner"],
   ["/admin/settings", "⚙", "Cấu hình"],
+  ["/admin/system", "◉", "Hệ thống"],
   ["/admin/audit", "◎", "Audit Log"],
 ] as const;
 

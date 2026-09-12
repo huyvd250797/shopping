@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { isHttpUrl } from "@/lib/catalog/format";
+import { logger } from "@/lib/observability/logger";
 
 const SESSION_COOKIE = "myshop_aff_session";
 const SESSION_RE = /^[A-Za-z0-9_-]{16,96}$/;
@@ -33,7 +34,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     const row = Array.isArray(data) ? (data[0] as { target_url?: unknown; recorded?: unknown } | undefined) : undefined;
     const target = typeof row?.target_url === "string" ? row.target_url : null;
-    if (error || target === null || !isHttpUrl(target)) return unavailable(request, slug);
+    if (error || target === null || !isHttpUrl(target)) {
+      logger.warn("affiliate_redirect_unavailable", { slug, hasRpcError: Boolean(error), hasTarget: Boolean(target) });
+      return unavailable(request, slug);
+    }
 
     const targetUrl = new URL(target);
     const response = NextResponse.redirect(targetUrl, 303);
@@ -48,7 +52,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       });
     }
     return response;
-  } catch {
+  } catch (error) {
+    logger.error("affiliate_redirect_failed", { slug, error: error instanceof Error ? error.message : "unknown" });
     return unavailable(request, slug);
   }
 }

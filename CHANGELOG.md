@@ -1,5 +1,28 @@
 # Changelog
 
+## V1.0.0 — Production Ready
+
+### Added
+- Public `GET /api/health` with sanitized production readiness checks and no-store response.
+- Admin `/admin/system` System Readiness page for production URL, Supabase, database connectivity, DB release marker and runtime mode.
+- Structured JSON server logger with PII/secret key redaction.
+- Checkout and affiliate operational log events for success/failure diagnosis in Vercel logs.
+- Migration `202609120010_production_ready.sql` with public `app_release=1.0.0`, safe operational defaults and audit/affiliate time indexes.
+- Dependency-free `npm run qa:production` release source checks.
+- `npm run backup:db` + `npm run backup:verify` using PostgreSQL client tools.
+- `PRODUCTION_RUNBOOK.md` and `PRODUCTION_QA_CHECKLIST.md`.
+
+### Changed
+- Version metadata, Admin dashboard/settings and footer badge updated to V1.0.0 Production Ready.
+- Seed data now includes the non-sensitive `app_release` marker.
+- Admin sidebar adds System Readiness.
+- `.env.example` documents production URL and optional server-only backup connection string.
+
+### Operations
+- Migration 010 preserves existing shop/checkout/CTA setting values and only forces the release marker to V1.0.0.
+- Health returns degraded/503 when app, DB marker, runtime or production URL are not aligned.
+- Backup dumps are excluded from Git by default.
+
 ## V0.9.0 — Hardening
 
 ### Added
